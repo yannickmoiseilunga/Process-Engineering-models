@@ -1,0 +1,2086 @@
+sets
+
+n   solute ion NaCl  MgCl2 Na Mg2 Cl /1/
+*i sources /aminedistillation, deux, hydrotreating, freshwater  /
+*j sinks   /caustic-treating, menox-i-sweeting, desalting, wastewater/
+i sources /1,  2,  3,   FW /
+
+j sinks   /1,  2,  3,   WW /
+
+q regenerator /q1, q2, q3/
+m contaminant /TDS/
+
+J4 node outlet of PDSDB /No1,No2,No3,No4,No5/
+JO node outlet of ROMB  /NRo1,NRo2,NRo3,NRo4,NRo5/
+ji node outlet PDMB and inlet of ROSDB /Ntp1,Ntp2,Ntp3,Ntp4,Ntp5/
+
+S   Stages /1/;
+*S   Stages /0*4/;
+
+
+Alias(s,ss);
+Alias(J4,J4J);
+Alias(i,ii);
+Alias(j,jj);
+Alias(q,qq);
+Alias(Ji,JiJ);
+Alias(n,nn);
+***----------------------------------------------------ED-------------------------------------------------------------
+Scalars
+Mvalue    The choice of a value for M depends on the size of f(xy) on the behavior of the model. Typical values are 100 or 1000
+/100000/
+aLCD     Constant for the limiting current density calculation
+/25000/
+bLCD     Constant for the limiting current density calculation
+/0.5/
+Ksp       Specific conductance of the solution   / 10.5/
+Cptarget       Final concentration of product out keq per m3
+/0.0008558/
+F          Faraday constant C per mol
+
+/96500000/
+thick        Half thickness of grid rods of spacer m
+/0.00065/
+kel       Electric power cost $ per kWh
+/0.12/
+kmb       Mebrane and capital cost $ per m2
+/150/
+ktr       Conversion factor MJ per kWh
+/0.728/
+Qptarget         Required production flowrate m3 per s
+/0.004050/
+epsilon    Safety factor
+/0.7/
+tmax      Estmated maximum membrane and equipment life in years
+/5/
+td       Annual operating time
+/365/
+w          Width of cell in m from 0.4 to 0.6m
+/0.42/
+lmesh         /0.004/
+h          Half thickness of grid rods of spacer m
+/0.0001625/
+Capc      Plant capacity in m3 per day /350/
+zval      Electrochemical valence      /2/
+alphaed     Correction factor for the mixing and distribution of solution by spacer but this result in decrease of available cell volume for the flow thus increasing the theoretically flow rate.
+/0.7/
+beta      Effective area of cell factor m2
+/0.7/
+delta     Thickness of unit cell in m
+/0.00065/
+deltaa    Feasibility factor
+/0.05995202000/
+Zeta      Current utilization
+/0.9/
+PowerF        Power factor /0.7/
+eta_p     Pumping efficiency
+/0.7/
+lamda     Effective conductance of solution Sm2 per keq
+/10.5/
+rhoAC     Total area resistance of membranes both anionic and cationic Ohm m2
+/0.0007/
+Vv        Valence of stream    /1 /
+;
+
+Parameter afraction(m)  Fraction of the contaminants in the solution  /
+
+     TDS    0.55       /
+Parameter Cpmax(m)       Inlet concentration of diluate in ker per m3   /
+
+     TDS    0.002833        /
+Parameter Zv(m)        Anionic or cationic Contaminants valence  /
+
+     TDS    2        /
+Parameter Zc(m)       Equivalent valence      /
+
+     TDS           2    /
+Parameter Vc(m)       Stoichiometric coefficients    /
+
+     TDS          1         /
+
+Parameter Zan(m)      Anionic Contaminants valence       /
+
+     TDS          1      /
+
+Parameter Van(m)      Anionic stoichiometric coefficients   /
+
+     TDS          1    /
+
+Parameter Zcat(m)     Cationic Contaminants valence       /
+
+     TDS          1      /
+
+CdxNFl(n)         Molecular weight of solutes     /
+
+      1    1e-4          /
+
+Parameter Vcat(m)     Cationic stoichiometric coefficients    /
+
+     TDS          1   /
+
+Parameter Cs(m)     Concentration of the solution        /
+
+     TDS          0.025       /
+Parameter Fll(q)                 /
+
+     q1           0.000116
+     q2           0.021
+     q3           0.00003                        /
+
+Parameter Pp(q)                 /
+
+     q1           101325
+     q2           101325
+     q3           101325                         /
+
+Parameter Flu(q)                           /
+
+     q1           0.23143
+     q2           0.27
+     q3           15.0         /
+
+Table Xl(q,m)   Minimum acceptable feed concentration
+                  TDS
+     q1           1e-5
+     q2           1e-4
+     q3           1e-3         ;
+
+Table Xu(q,m)   Maximum acceptable feed concentration
+                  TDS
+     q1           1.833
+     q2           1.2
+     q3           15           ;
+Parameter dH;
+ dH =  (8 - 4*pi*(h/lmesh)) / ((4/w)+(1/h)+ (2*pi*(1 - (h/w))*(1/lmesh)));
+**------------------------------------------------------------Superstructure and RO-------------------------------------------------------------------
+Scalars
+Aro         Pure water permeability kg per s.N                          /1.2e-10/
+Fmax      Maximum flow rate pe module by manufacturer in kg per s      /0.27/
+Fmin      Minimum flow rate per module by manufacturer in kg per s     /0.21/
+Fpmin                                                                  /5.787/
+Sm        Membrane area per module in m2 /152/
+*Sm        Membrane area per module in m2 /182/
+mu        Solution viscosity in kg per m s or Pa s   /0.0015/
+*AOT       Annual operating time     /8760/
+AOT       Annual operating time     /31536000/
+*Ff        Feed flowrate in kg per sec           /19.20/
+Cchemicalsro    Unit cost of pretreatment chemicals    /0.003/
+Cstack                                                 / 1/
+Cwastero        Unit cost for waste treatment    /1/
+Celectricity  Unit cost of electricity      /0.065/
+Cmodulero       Unit cost of HFRO membrane module      /2300/
+Cwater        Unit cost of water    /1 /
+Cpumpro                                   /6.5/
+Cturbinero                                /18.4/
+*D2MK          Solute (contaminant) flux constant   /0.000000182/
+D2MK          Solute (contaminant) flux constant   /1.82e-8/
+Kc            Solute (contaminant) permeability coefficient     /4e-6/
+OS            Osmotic pressure coefficien   /4.0828e-4/
+Eturbine      Turbine efficiency       /0.7/
+*W                                  /10/
+Pmax                           /68.88e5 /
+Patm                           /101325/
+l             Fiber length in m          /0.75/
+ls            Fiber seal length in m     /0.075/
+ri            Inner radius of the hollow fiber in m    /21e-6/
+ro            Outer radius of the hollow fiber in m    /50e-6 /
+
+Parameter Epump ;
+Epump = tan(sqrt(16*Aro*mu*ro/(ri**2))*(l/ri)) /((sqrt(16*Aro*mu*ro/(ri**2)))*(l/ri)) ;
+Parameter Lambda,Epump ;
+Lambda = Epump / (1 + (16*Aro*mu*ro*l*ls*Epump/(101325*(ri**4)))) ;
+Parameters
+ Cfw   unit cost of freshwater in dollars per case per thousand miles /1/
+ Cww  unit cost of wastewater in dollars per case per thousand miles /1/
+ Cws  unit cost of wastewater in dollars per case per thousand miles /5/
+ pc   parameter for carbon steel piping /7200/
+ qcpipe   parameter for carbon steel piping /250/
+ qc   parameter for carbon steel piping /250/
+ vstr    velocity in meter per seconde /1/
+ Aperm    pure water permeability in meter per second Pascal /5.50e-13/
+ A    pure water permeability in meter per second Pascal /1.20e-10/
+ deltaPmq  shell side pressure drop per module per regenerator in Pascal /0.22e5/
+ km   solute permeability coefficient in meter per second /1.82e-8/
+ Lfibre    fiber length in meter /0.75/
+ visc   water viscosity in kilogramme per meter second /1e-3/
+ YY    dimensionless constant /0.69/
+ Efpump  pump efficiency  /0.7/
+ Eftur   turbine efficiency /0.7/
+ alphaq  liquid recovery for regenerators  /0.780/
+ Cchem cost parameterfor chemicals in dollars per kilo /0.11/
+ Celec cost electricity in dollars per kilowatt sec  /0.0000167/
+ Cpump cost coef for pump in dollars per yearswatt /6.5/
+ Ctur  cost coef for turbine in dollars per yearwatt0.43 /18.4/
+ Cmod  cost per module of HFRO membrane in dollars per year module /2300/
+* Fu    maximum fow rate per hollow fiber module in kilo per s /0.27/
+ Fu    maximum fow rate per hollow fiber module in kilo per s /0.46/
+* Fl    minimum flow rate per hollow fiber module in kg per s  /0.21/
+ Fl    minimum flow rate per hollow fiber module in kg per s  /0.021/
+ Ppq   pressure of permeate stream from regen q /101325/
+ AA     /0.230974/
+ FIl   lower bound on flow rate /1e-6/
+ FIu   upper bound on the flow rate /15.35/
+ CmoduleED             / 25/
+
+ Pu    an arbitrary big value for pressure /68.88e6/
+
+ Pl    an arbitrary small value for pressure /1.22e5/
+
+ pwi   pressure of source i /101325/
+
+ Prj    pressure of the retentate stream in the sink j/100325/
+
+ Mubigm    upper bound of big-M constant for interconnection bet streams /25/
+
+ Mlbigm    lower bound of big-M constant for interconnection bet streams /1e-5/
+
+K  Solute constant /
+      1  4e-6    /
+
+Xe(m)  max allowable mass fraction of species m in lean stream i leaving the RON by environmental regulations
+    / TDS           0.00048      /
+
+**----------------------------------------------------------Nanofiltration-----------------------------------------------------------------------------------------------------
+Parameters
+PpNF               /101325/
+MvalueNF        /1e-5/
+EspecNF        Specific desalination energy per volume of product at stage s kWh per m3  /3/
+kboltzNF       k Boltzmann constant  / 1.38066e-23/
+deltaaNF      tolerance /1e-7/
+MwNF(n)         Molecular weight of solutes     /
+
+      1    23       /
+zNF(n)          Valence of ion i (dimensionless)   /
+
+       1    1        /
+NFtarget(n)      Targeted rejection      /
+
+      1    0.492       /
+rsNF(n)      solute stokes radius  (m)  /
+       1    0.184e-9     /
+XuNF(n)      solute stokes radius  (m)  /
+       1    7000        /
+XlNF(n)    Minimum acceptable concentration for Nf  /
+       1    1e-5      /
+
+Density(n)         Density of solutes  kg per m3   /
+
+      1    0.968         /
+DinfNF(n)       Bulk diffusivity (m2 per sec)     /
+*      1    1.5e-9
+*      2    1.5e-9  /
+      1    1.33e-9    /
+*      2    0.706e-9
+*      3    2.3e-9  /
+MCbNF(n)       Mass Concentration in the bulk solution (g per kg) /
+       1    398.6     /
+*       2    254.2
+*       3    1351  /
+
+epNF              /41.3/
+ZetaNF         Electric potential gradient at the feed=membrane interface /3.5/
+;
+Scalars
+
+AkNF            Porosity dimensionless   /0.6/
+FNF             Faraday constant (C per mol )      /96487/
+etapNF         Pumping efficiency                /0.7/
+nNF             The mixing efficiency of spacer     /0.75/
+RNF             Gas constant (J per mol K)     /8.314/
+
+TNF             Absolute temperature (K)         /300/
+ratioxANF       The ratio of effective thickness to porosity      /0.000003/
+echarge       Electronic charge Coulomb   /1.602177e-19/
+kb            Boltzmann constant J per K     /1.38066e-23/
+enotNF          Permittivity of free space  J C2 per m (sometimes F per m) /8.854e-12/
+estarNF         Dielectric constant of the solvent within the pore from Desal-DK membrane data in Bowen et al 2002  /31/
+
+erNF            Relative permittivity or the solvent’s dielectric constant  /40/
+* Labban, Omar, Chang Liu, Tzyy Haur Chong, and John H. Lienhard V. “Fundamentals of Low-Pressure Nanofiltration: Membrane Characterization, Modeling, and Understanding the Multi-Ionic Interactions in Water Softening.”
+ebNF            Dielectric constant of the bulk or oriented water layer (dimensionless)  /80.4/
+eNF             The permittivity of the medium (the value within the pore or in the bulk feed or permeate)       /0.1/
+ecNF            Elementary Electric charge   /1.602e-19/
+Navogrado     The Avogadro number /6.022140857e23/
+HoffcoefNF      The Van't Hoff coefficient      /1.5e2/
+*HoffcoefNF      The Van't Hoff coefficient      /1.5e-4/
+muNF            Solution viscosity in kg per m s or Pa s    /0.0015/
+rho           Fluid mass density (kg per m3)        /1000/
+rhomixNF           Fluid mass density (kg per m3)        /2530/
+kelNF          Electric power cost $ per kWh      /0.12/
+ktrNF          Conversion factor MJ per kWh           /3.600/
+epsilonNF       Safety factor                          /0.7/
+tmaxNF         Estmated maximum membrane and equipment life in years     /5/
+tdNF           Operating time per year in days per year           /300/
+CmoduleNF       /50/
+kmbNF          Mebrane and capital cost $ per m2      /3000/
+dSNF            The membrane area                    /37/
+LNF             the manufacturer’s data (module area is 37m2 and length is 1 m)from Costa and Pinho 2005: Performance of Nano spiral wounds.   /1/
+porosity   /0.75/
+;
+Parameter DeltaW(n),
+          ANF ;
+
+DeltaW(n) = ((zNF(n)**2)*(ecNF**2)*((1/ebNF) - (1/epNF)))*(8*Pi*enotNF*rsNF(n))**(-1);
+ANF = ((ecNF**(3))*sqrt(Navogrado*2*Pi))*(log(10)*(4*Pi*enotNF*erNF*kb*TNF)**(2/3)) ;
+
+**----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*$ontext
+**---------------------------------------literature based refinery case study (Khor et al., 2011)----------------------------------
+parameter fslim(j)             /
+
+    1   0.83
+    2   40
+    3   5.56
+    WW  25    /    ;
+
+*parameter  pp(q)   pressure of permeate stream from regen q /
+*    q1               101325
+*    q2               101325     /  ;
+
+parameter flim(i)             /
+    1    7.3
+    2    10.65
+    3    3.5
+    FW   12   /    ;
+$ontext
+table cont(i,m) max allowable contaminant concentration (kg per m3)
+*                    tds        cod
+                          TDS
+    1                     3.5
+    2                     4
+    3                     1
+    FW                    2    ;
+
+table conta(j,m)   max allowable contaminant concentration (kg per m3)
+*                      tds     cod
+                      TDS
+   1                  2.5
+   2                  2
+   3                  2.5
+   WW                 25      ;
+*   wastewater         12.5    12.5  ;
+*   wastewater         3.5     3.5  ;
+$offtext
+*table cpmax(j,m)   max allowable contaminant concentration (kg per m3)
+*                      tds     cod
+*   caustic-treating   2.5     2.5
+*   menox-i-sweeting   2       2
+*   desalting          2.5     2.5
+*   wastewater         25      25  ;
+*parameter  pp(q)   pressure of permeate stream from regen q /
+*    q1               101325
+*    q2               101325
+*    q3               101325     /  ;
+*parameter  mwcol(q)  molecular weight cut-off for regen q in da or g per mol /
+*    q1               200
+*    q2               50
+*    q3               150     /  ;
+*parameter  mwcou(q)  molecular weight cut-off for regen q in da or g per mol /
+*    q1               20000
+*    q2               30000
+*    q3               150000     /  ;
+
+*table contaq(q,m) max allowable contaminant concentration (kg per m3)
+*           tds     cod
+*           TDS
+*           nacl    mgcl2
+*   q1      8.8
+*   q2      8.8
+*   q3      8.8        ;
+
+*table dij(i,j) manhattan distance
+*                         1                2              3         WW
+* 1                       50               50             50        60
+* 2                       60               50             60        70
+* 3                       50               50             50        60
+* FW                      60               50             60        70 ;
+
+*table din(i,q) manhattan distance
+*                      q1     q2
+* 1                    50     50
+* 2                    40     40
+* 3                    65     50
+* FW                   100    50 ;
+
+*table dqj(q,j) manhattan distance
+*             1                2              3              WW
+*q1           80               70             70             60
+*q2           60               50             10             40
+*q3           70               60             20             50          ;
+
+*table dqn(q,j4) manhattan distance
+*                    no1 no2 no3
+*no4 no5 no6 no7 no8 no9 no10 no11 no12 no13
+*q1                  15  15  25
+*24  25  15  23  15  25  15   15   13   25
+*q2                  15  15  25
+*24  25  15  23  15  25  15   15   13   25
+*q3                  15  25  15        ;
+*24  25  15  23  15  15  25   15   13   25 ;
+
+*table dd(i,j4) manhattan distance
+*                    no1 no2 no3
+*no4 no5 no6 no7 no8 no9
+*1                   25  25  25
+*24  25  25  23  25  25
+*2                   25  25  25
+*24  25  25  23  25  25
+*3                   25  25  25
+*24  25  25  23  25  25
+*FW                  25  25  25
+*24  25  25  23  25  25 ;
+
+*$offtext
+**---------------------------------------Case study Abbas et al., 2015--------------------
+*Parameter Flim(i)             /
+
+*    1            3.26
+*    2            0.34
+*    3            1.34
+*    4            7.22
+*    FW           25    /    ;
+*Parameter Flim(i)   in Kg per sec need to convert          /
+
+*    1            2.07
+*    2            0.34
+*    3            0.024
+*    4            7.22
+*    FW           5.25    /    ;
+
+*Parameter deltaP(q)        /
+*    q1                 0.22e5
+*    q2                 0.22e5    /;
+
+*Parameter  Pp(q)   pressure of permeate stream from regen q /
+*    q1               101325
+*    q2               101325
+*    q3               101325   /  ;
+*Parameter Fslim(j)             /
+*    1      3.26
+*    2      0.34
+*    3      1.34
+*    4      7.22
+*    WW     50   /    ;
+*Parameter Fslim(j)             /
+*    1      3.26
+*    2      0.34
+*    3      1.34
+*    4      7.22
+*    WW     60   /    ;
+
+*Table Cont(i,m) max allowable contaminant concentration (g per liter)(kg per m3)
+*                      TDS
+*                      NaCl       MgCl2
+*    1                 0.0892
+*    2                 0.272
+*    3                 0.0183
+**    4                 0.036
+*    FW                0         ;
+Table Cont(i,m) max allowable contaminant concentration (g per liter)(kg per m3)
+                      TDS
+*                      NaCl       MgCl2
+    1                 0.0894
+    2                 0.272
+    3                 0.0183
+*    4                 0.036
+    FW                0         ;
+
+Table Conta(j,m)   max allowable contaminant concentration (kg per m3)
+                       TDS
+*                       NaCl      MgCl2
+    1                  0.034
+    2                  0.084
+    3                  0.050
+*    4                  0.0063
+    WW                 600  ;
+
+Table Contaq(q,m) max allowable contaminant concentration (kg per m3)
+           TDS
+*           NaCl    MgCl2
+   q1      8.8
+   q2      20
+   q3      20          ;
+
+Table dij(i,j) manhattan distance
+                         1                2              3         WW
+ 1                       50               50             50        80
+ 2                       60               50             60        90
+ 3                       50               50             50        80
+* 4                       50               50             50       0     80
+ FW                      60               50             60        90  ;
+
+Table din(i,q) Manhattan distance
+                      q1      q2     q3
+ 1                    50      50     60
+ 2                    40      40     50
+ 3                    65      50     50
+* 4                    100     50     80
+ FW                   120     100    110 ;
+*Table dqn(q,J4) Manhattan distance
+*                    No1 No2 No3 No4 No5 No6 No7 No8 No9 No10 No11 No12 No13
+**q1                  15  15  25  24  25  15  23  15  25  15   15   13   25
+*q2                  15  15  25  24  25  15  23  15  25  15   15   13   25
+*q3                  15  25  15  24  25  15  23  15  15  25   15   13   25 ;
+Table dqn(q,J4) Manhattan distance
+                    No1 No2 No3 No4 No5
+q1                  15  15  25  24  25
+q2                  15  15  25  24  25
+q3                  15  25  15  24  25   ;
+Table dqj(q,j) Manhattan distance
+             1                2              3        WW
+q1           80               70             60       90
+q2           60               10             40       90
+q3           70               20             40       90 ;
+
+*table Dd(i,J4) manhattan distance
+*                    No1 No2 No3 No4 No5 No6 No7 No8 No9
+*1                   25  25  25  24  25  25  23  25  25
+*2                   25  25  25  24  25  25  23  25  25
+*3                   25  25  25  24  25  25  23  25  25
+*4                   25  25  25  24  25  25  23  25  25
+*FW                  25  25  25  24  25  25  23  25  25 ;
+table Dd(i,J4) manhattan distance
+                    No1 No2 No3 No4 No5
+1                   25  25  25  24  25
+2                   25  25  25  24  25
+3                   25  25  25  24  25
+*4                   25  25  25  24  25
+FW                  25  25  25  24  25  ;
+Parameter  MWCOl(q)  Molecular Weight Cut-off for regen q in Da or g per mol /
+    q1               200
+    q2               50
+    q3               150     /  ;
+
+Parameter  MWCOu(q)  Molecular Weight Cut-off for regen q in Da or g per mol /
+    q1               20000
+    q2               30000
+    q3               150000     /
+Parameter MolW(m)       Molecular weight in g per mol   /
+     TDS     95.21 /;
+*     NaCl    58.4
+*     MgCl2   95.21  / ;
+Parameter  Xll(q,m),
+           Xuu(q,m);
+
+ Xll(q,m) = MWCOl(q)*Density('1')/MolW(m) ;
+ Xuu(q,m) = MWCOu(q)*Density('1')/MolW(m) ;
+
+
+positive variables
+***-----------------------------------------------------------------Superstructure and RO***--------------------------------------------------------
+Cptargeted
+Cptargetro(m)
+Fpro        Flow rate of the permeate leaving the qth RO stage in the ROMB in kg per s
+Ffro
+Fm(m)
+Frro        Flow rate of the reject leaving the qth RO stage in the ROMB in kg per s
+Fso(m)
+Fopt
+deltaP
+deltapi
+Xps(m)
+Xfs(m)
+Xs(m)
+Xrs(m)
+PWpump
+PWturbine
+*Cf(q)
+*Can(j4)
+Npump
+piq        Osmotic pressure
+slack1
+slack2
+slack3
+slack4
+slack5
+slack20
+slack21
+slack22
+slack25
+PmRO
+
+TACj(q,ji) total annualized cost of the RON
+TAC(q) total annualized cost of the RON
+Fs(i,j)  allocated flow rate bet source i and sink j
+Fstr(i) flow rate i in kg per s
+Fwj(j)     flow rate i in kg per s
+Fd(i,J4)  allocated flow rate bet source i and N
+Fpj(q,j)  flow rate of permeate stream from regenerators q to sink j
+Frj(q,j) flow rate of retentate stream from regenerators q to sink j
+Fan(J4,q) flow rate of streams from node N to regenerator q
+Ff(q)  flow rate leaving the outlet junction of ROSDB
+Fp(q) flow rate of permeate stream leaving the regenerator q
+
+LR(q)
+
+Frmb(q,qq)
+Crmb(q,m)
+Fperm(q,qq)
+Fper(q)
+Cpmb(q,m)
+
+Fpm(q,m)
+Fpn(q,J4)  flow rate of permeate stream regenerator q to node N
+Fr(q) flow rate of retentate stream leaving the regenerator q
+Frn(q,J4)  flow rate of retentate stream regenerator q to node N
+Fann(J4)  flow rate of stream from node
+Fww       flow rate of sink j
+Can(J4,m)  concentration of contaminant m in stream leaving the node N
+Canq(q,m)
+Csink(j,m)
+Cf(q,m) concentration of contaminant m in stream in the feed to the regenerator q
+Cp(q,m)  concentration of contaminant m in permeate stream leaving the regenerator q
+Cr(q,m) concentration of contaminant m in retentate stream leaving the regenerator q
+Cav(q,m) average concentration of contaminant m in the high pressure side of regenerator q
+Pan(j4)   pressure of stream leaving node n
+Pin(j4) pressure of an inlet stream to an energy recovery turbine from node N
+Pon(J4) pressure of an outlet stream from an energy recovery turbine from node N
+Pf(q)   feed pressure into regenerator q
+Pr(q)  pressure of retentate stresm from regenerator q
+detlapi(q) osmotic pressure on the rententate side of regenerator q
+FEW    freshwater flow rate
+WW    wastewater flow rate
+CWaste(m)
+CFWaste(m)
+STAC2(q)
+RRro(m)
+RR(q,m)
+
+CpsolNF(m)
+CrsolNF(m)
+CfsolNF(m)
+CpNF(n)
+CrNF(n)
+CfNF(n)
+;
+
+Variable
+Norm
+Stack1
+
+Stack3
+slack23
+stack5
+stack6
+stack7
+stack8
+RRNFn(n)
+ ;
+Integer variable
+Nsro        Number of parallel RO modules in the qth stage of the ROMB
+
+ ;
+
+Variable
+Nturbine
+;
+
+Binary variables
+bn(J4) 1 if pump exist
+tn(J4) 1 if turbine exist
+rq(q) 1 if regenerator q exist
+yp(q,j) 1 if piping exist bet the permeate streams and sinks j
+yr(q,j) 1 if piping exist bet the retentate stream and sinks j
+y(i,j)  1 if piping exist bet source i and sink j
+ydn(i,J4) 1 if piping exist bet source i and node N
+yrmb(q,qq) 1 if piping exist bet the retentate streams and feed to regenerator
+ypmb(q,qq) 1 if piping exist bet the permeate streams and feed to regenerator
+ypn(q,J4)
+yrn(q,J4)
+;
+****----------------------------------------------------------------------------------ED------------------------------------------------------------
+Positive Variables
+Kav         The average specific electrical conductivity of the concentrate and dilute solution in a  cell pair
+Anom        Nominal membrane area specified by constructor in m2
+Aed(s)        Membrane area required for desalination at stage s in m2
+Atot
+Aappl       Applied required membrane area
+Cc(s)       Concentration of concentrate stream into stage s keq per m3
+Ccr         Concentration of recycling concentrate stream keq per m3
+Cfc        Concentration of feed concentrate stream keq per m3
+Cfc         Concentration at the entrance of the concentrate
+Cdelta(s)
+slack1
+slack2
+slack3
+slack4
+slack5
+slack6
+slack7
+slack8
+slack9
+slack10
+slack12
+slack13
+slack14
+slack11
+slack41
+slack42
+slack30
+slack31
+slack50
+slack51
+slack27
+slack28
+slack29
+slack52
+Cpe(m)
+Cret(m)
+Cwaste(m)
+Ceq          Equivalent concentration of feed concentrate stream keq per m3
+Cd(s)        Concentration of diluate stream into stage s keq per m3
+Cw           Concentration of concentrate waste stream keq per m3
+Espec(s)    Specific desalination energy per volume of product at stage s kWh per m3
+Epu(s)      Specific pumping energy per volume of product at stage s kWh per m3
+Ilim(s)     Limiting current density at stage s A per m2
+Iprac(s)    Empirically determined current density at stage s A per m2
+Ied(s)         Current at stack at stage s in A
+Lprac(s)         Practical calculated length of process path required for desalination at stage s in m
+Linear1(s)  A variable introduced to avoid quotients
+msplit       Feed split rate
+Pdes(s)     Power required for the plant
+Qf           Feed stream flowrate m3 per s
+Qced           Concentrate stream flowrate m3 per s
+Qm           Mixing stream flowarte m3 per s
+Qcr          Concentrate stream recycle flowrate m3 per s
+Qd           Dilute stream flowrate m3 per s
+Qp          Product stream flowrate m3 per s
+Qr           Recycle stream flowrate m3 per s
+Qw           Waste stream flowrate m3 per s
+r            Product recovery rate
+Rcp(s)      Resistance of cell pair at stage s
+u(s)         Linear flow velocity at stage s m per s
+V(s)         Voltage applied to the stack at stage s in Volts
+Econdsol     Solution Electrolyte conductivity
+Ceq          Equivalent concentration of the solution
+Econd(m)     Electrolyte conductivity
+Econdinf(m)  Electrolyte conductivity at infinite dilution
+Lstack
+Cfd
+Fret
+Cfed(m)
+mix
+Cped
+Cped
+RRed(s)
+RR1ed(s)
+Width
+;
+Positive variables
+DP(s)     Pressure drop in the piping of the system at stage s in Pa
+DPtot
+alpha
+Objro
+OBF1
+objNF
+;
+
+Integer variable
+Ned         Number of cell-pairs for desired capacity per stage
+Nstack
+Nnano
+Nmodule
+;
+
+Variable
+MBOBFtot
+WAPOBFtot
+OBFtot
+Obj
+dummyobf1
+muoa
+;
+
+*****------------------------------------------------------------------------------------Nanofiltration**************----------------------------------
+Positive Variables
+TurbineCost
+PumpTurbineCost
+PipeCost
+FWCost
+WWCost
+RRNF(m)
+CNF(n)          Concentration in membrane (mol per m3)
+CwNF(n)         Concentration at the membrane wall (mol per m3)
+jNF(n)          Ion flux (based on membrane area) (mol per m2 sec)
+KcNF(n)         Hindrance factor for convection
+KdNF(n)         Hindrance factor for diffusion
+RrealNF         Real rejection of the solute
+KwNF            pure water permeability  350 LMH in m3 per m2 per sec
+dNF             Thickness of film layer (m)
+DeltaPNF        Applied pressure drop (bar)
+phiNF           equilibrium partition coefficien as defined by Eq. (9)
+DeltaphiNF      Potential difference (V)
+EpuNF          Specific pumping energy per volume of product at stage s kWh per m3
+PdesNF         Power required for the plant
+PosNF           Transmembrane osmotic pressure
+CNF(n)          Concentration of ion i or uncharged solute within pore (mol per m3)
+
+CavgNF(n)       Concentration of ion i or uncharged solute within pore (mol per m3)
+CfNF            Bulk feed concentration (mol per m3)
+CrNF(n)
+CpNF(n)         Permeate concentration of ion i or uncharged solute (mol per m3)
+CwNF(n)         Wall concentration of ion i or uncharged solute (mol per m3)
+DpNF(n)         Pore diffusion coefficient of ion i or uncharged solute (m2 per sec)
+
+dNF             Hydraulic diameter of the membrane layer (m)
+
+JNF(n)          Ionic flux of ion i (pore area basis) mol per m2 per sec
+
+JvNF            Volumetric flux (m3 per m2 sec)
+kmNF(n)         Feed-side mass-transfer coefficient (m per sec) for laminar flow van der Horst 1995
+PeNF(n)           Peclet number for ion i or uncharged solute (dimensionless) Peclet number in the channel given by Pe = 2*hf*Uw per Dinf(i)
+rpNF            Effective pore radius (m)
+RlimNF          Limiting rejection (dimensionless)
+visk             Kinematic viscosity in m2 per sec mu per density
+dCNF(n)         Concentration difference of ion i or uncharged solute across the pore thickness (mol per m3)
+DeltaPNF        Applied pressure (N per m2)
+DeltaXNF        Membrane thickness (m)
+sigma         Ratio of effective membrane charge density to bulk feed concentration (dimensionless)
+phiNF(n)        Steric partition coefficient of ion i or uncharged solute (dimensionless (1-lambda)2)
+phiBNF          solvation energy contribution to partitioning
+phidx
+phix
+PmNF
+LmixNF          The mixing length of the spacer
+*hf            The feed channel height
+*Pem           Peclet number in the channel given by Pe = 2*hf*Uw per Dinf(i)
+ScNF(n)         The Schmidt number for each solute species given by Sci  v per Dinf
+mpNF(n)         The mass balance of each solute species i in the permeate channel
+QfNF            The mass of solvent on the feed side
+QpNF            The mass of solvent on the permeate side
+QrNF
+gammaporepNF(n)
+CdxNF(n)
+gammaporeNF(n)  The solute activity coefficients just within the pore entrance
+gammamNF(n)     The solute activity coefficients at the membrane and feed solution interface
+gammapNF(n)     The solute activity coefficients at the permeate side of the membrane
+lambdaNF(n)
+IonNF           The ionic strength
+IonpNF
+Ionw
+IonxoNF
+IondxNF
+PfNF
+VelNF
+effthickNF      The effective membrane thickness 1.33 micronmeter
+efflengthNF     The effective membrane length 23 centimeters
+DeltaXNF        Membrane thickness (m)
+DeltaLnNF        Membrane length (m)
+CpNF(n)
+CxoNF(n)
+DoutNF
+slack4nf(n)
+slacknf
+TurbineElect
+OBFtotb
+;
+
+variables
+XdNF            Effective charge density (mol per m3)
+RrealNF(n)
+rejlimNF
+RecoveryNF(n)
+DeltaphiDpNF    The Donnan potential difference between the point just within the pore exit and the solution at the permeate-membrane interface
+DeltaphiDNF     Donnan potential of ion i at the pore entrance V
+Par1NF(n)
+slack1nf
+slack2nf
+slack50ro(m)
+slack5nf(n)
+slacktac(q)
+slackmb1(j,m)
+
+;
+Variable
+dummyNF
+slack1NF(n)
+slack2NF(n)
+slack3NF
+slackmb(q,m);
+Equations
+***-----------------------------------------------------Superstructure and RO---------------------------------------------------------------------------
+Eq26
+Eq27r
+Eq28
+Eq291
+Eq292
+Eq393
+Eq41
+Bound05b(m)
+Bound061
+Bound062
+Bound063
+Eq45
+C10 Concentration balance of C9
+C11 flow rate balance of permeate stream entering thePDSDB
+C12 Concentration balance of C11
+C13 flow rate balance of retentate stream entering thePDSDB
+C14 Concentration balance of C13
+C15 pressure are at the same pressure before mix feed
+C16 pressure are at the same pressure before mix permeate
+C17 pressure are at the same pressure before mix retentate
+*C18 isobaric mixing of streams within ROSDB
+C19 PRINCIPLE OF ENERGY RECOVER
+C20 PRINCIPLE OF POMP
+C21 flow rate balance for the inlet of the ROSDB
+C21a
+C22 the outlet flow rate balance for ROSDB
+C23 Concentration balance of C22
+C25 booster pump exist in ron if Pi(n) is larger than P of stream enterring PDMB
+C26 same as C25 but with turbine
+C27 prevent pump and turbine to accuring in series
+C28
+C28a
+C28aa
+C45aa
+C28aaa
+C45aaa
+*C28aaa1
+*C45aaa1
+C28c
+C45c
+C30bb osmotic pressure function
+C30aa
+C30a
+C30aaa
+C30cc
+C30d
+
+C34 mass balance pour regenerator
+C35 concentration balance pour regenerator
+C36 Big-M parameter for the piping interconnection source sink
+C37 Big-M parameter for the piping interconnection source q
+C38 Big-M parameter for the piping interconnection q sink
+*C38a
+C39
+C41 OBF
+C43
+C44
+C45
+C45a
+C46
+C47
+C48
+*C48a
+C49
+C55
+C56
+C58 C18
+
+SousCost2
+C90 C9
+
+BS11
+BS12
+BSi1a
+
+C333b
+BS11a
+BSi1
+
+BS12a
+C333a
+C440 C4  not mixing permeate and retentate stream in the same sink
+C441 C4  not mixing permeate and retentate stream in the same sink
+C441a
+C442 C4  not mixing permeate and retentate stream in the same sink
+C443 C4  not mixing permeate and retentate stream in the same sink
+
+*C444 C4  not mixing permeate and retentate stream in the same sink
+C446 C4  not mixing permeate and retentate stream in the same sink
+
+*C660 C6  removal ratio equation
+*C661 C6  removal ratio equation
+*C662 C6  removal ratio equation
+
+
+C200P
+MB1
+MB12
+C201Pa
+C200Pa
+C30b
+C34a
+C21b
+C21ba
+C30aaaa1(q,m)
+C30aaaa2(q,m)
+C30aaaa3(q,m)
+Equations
+*Electric current
+Eq1(s)
+Eq1a(s)
+Eq5b(s)
+Eq7(s)
+Eq9b(s)
+Eq12
+Eq151
+Eq152
+Eq153
+Eq153a
+Eq154
+Eq154a
+Eq156
+Eq156a
+Eq16
+Eq171
+Eq18
+
+Eq26
+Eq26a
+Eq26b
+Eq26c
+Eq13a
+
+Bound021
+Bound022(s)
+Bound023(s)
+Bound041(s)
+Bound042(s)
+Bound091
+Bound092
+Bound095
+Bound096
+Bound101
+Bound102
+C411
+Eq27
+Eq37
+Eq391
+Eq392
+C41
+C41a
+C41b
+C41c
+;
+
+*********-----------------------------------------------------------------------Nanofiltration-----------------------------------------------------------------------
+Equations
+Eq42nf(n)
+Eq42anf(n)
+Eq42bnf(n)
+Eq42cnf(n)
+Eq43nf(n)
+Eq43bnf
+Eq43aaanf(n)
+Eq4nf
+Eq8nf
+Eq81nf
+Eq82nf(n)
+Eq101nf(n)
+Eq103nf(n)
+Eq143nf
+
+Eq144nf
+Eq155
+
+Eq146nf
+EqPumpCost
+EqPipeCost
+EqFWCost
+EqTurbineCost
+EqTurbineElect
+
+EqWWCost
+Eq27nf  ;
+$offorder;
+**----------------------------------------------------------------Black Box ED---------------------------------------------------------------------------------------------------
+*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Eq5b(s)..               Qp*Lprac(s)  =e= Aed(s)*delta*u(s) ;
+Eq7(s)..                Aed(s) =g=  Lstack*Width*Nstack ;
+Eq9b(s)..               Pdes(s) =g= V(s)*Ied(s)*(Lprac(s)*Width) ;
+Eq13a(s)..              Lprac(s)  =e= Lstack*Nstack;
+Eq12(s)..               DPtot*(thick**2)   =g=  32*mu*u(s)*Lprac(s)  ;
+Eq1(s)..                Ied(s)*Zeta*Ned  -  F*Qd*zval*(Cdelta(s)) =l= 0  ;
+Eq1a(s)..               Cdelta(s) =g= Cfd - Cd(s)  ;
+Eq18(s)$(ord(s)=card(s))..         Qf*Cfd - Qp*Cd(s) - Qw*Cw  =e= 0;
+Eq16..                  Qp =e=  LR('q1')*Qf  ;
+Eq171..                 Qf    =e= Qp+Qw;
+Eq151..                 Ff('q1') =e= Qf*NED  ;
+Eq152..                 Fr('q1') -  Qw*NED =e= 0 ;
+Eq153(s)..              Cd(s)  =e= sum(m, Zv(m)*Cped(m)) ;
+Eq153a(m)..             Cp('q1',m) - Cped(m) =e= 0 ;
+Eq154..                 sum(m, Zv(m)*Cwaste(m)) - Cw =e= 0 ;
+Eq154a(m)..             Cr('q1',m) - Cwaste(m) =g= 0 ;
+Eq156..                 sum(m, Zv(m)*Cfed(m)) - Cfd =e= 0 ;
+Eq156a(m)..             Cf('q1',m) - Cfed(m) =e= 0;
+Eq155..                 Fp('q1') - Qp*NED =e= 0 ;
+
+Bound021..              h =e= 0.25*thick;
+Bound022(s)..           DPtot =g= 1e5;
+Bound023(s)..           DPtot =l= 6e5;
+Bound041(s)..           u(s) =g= 0.01;
+Bound042(s)..           u(s) =l= 0.4;
+Bound091..              LR('q1') =g= 0.70;
+Bound092..              LR('q1') =l= 0.95;
+Bound095(m)..           RR('q1',m) =l= 0.95;
+Bound096(m)..           RR('q1',m) =g= 0.25;
+Eq27.. OBF1 =e=         (NED*(kmb/tmax)*sum(s ,Aed(s)))+ NED*td*sum(s,(kel*Qp*Pdes(s))) ;
+  ;
+*****-------------------------------------------------------------Superstructure and RO-------------------------------------------------------------------------------;
+BS11(i)$(ord(i) <> card(i))..      Sum(j,Fs(i,j))  + Sum(J4,Fd(i,J4)) =e= 1e-3*Flim(i)  ;
+BS11a..                            Sum(j,Fs('FW',j))  + Sum(J4,Fd('FW',J4)) =e= FEW  ;
+BS12(i,m)$(ord(i) <> card(i) )..   (Sum(j,(Fs(i,j)*Cont(i,m)) ) + Sum(J4,(Fd(i,J4)*Cont(i,m)))) =g=  1e-3*Flim(i)*Cont(i,m)   ;
+BS12a('FW',m)..                    (Sum(j,(Fs('FW',j)*Cont('FW',m)) ) + Sum(J4,(Fd('FW',J4)*Cont('FW',m)))) =e=  FEW*Cont('FW',m)   ;
+BSi1(j)$(ord(j) <> card(j))..      1e-3*Fslim(j) =g= Sum(i,(Fs(i,j) )) +(Sum(q,(Frj(q,j))))+ (Sum(q,(Fpj(q,j))));
+BSi1a..                            WW  =e= Sum(i,(Fs(i,'WW') )) + (Sum(q,(Frj(q,'WW'))+ (Fpj(q,'WW'))))  ;
+MB1..                              sum(j$(ord(j) <> card(j) ), 1e-3*Fslim(j)) + WW + sum(q,Fper(q)) =g= sum(i$(ord(i) <> card(i)), 1e-3*Flim(i)) + FEW  ;
+MB12(m)..                          WW*Csink('WW',m) +  sum(j$(ord(j) <> card(j) ), 1e-3*Fslim(j)*Csink(j,m)) + sum(q,Fper(q)*Cp(q,m))  =g= FEW* Cont('FW',m) + sum(i$(ord(i) <> card(i)),1e-3*Flim(i)*Cont(i,m))   ;
+C333a(j,m)$(ord(j) <> card(j))..   1e-3*Fslim(j)*Csink(j,m) =e=  (Sum(i,Fs(i,j)*Cont(i,m)) + Sum(q,(Frj(q,j))*Cr(q,m)) + Sum(q,(Fpj(q,j))*Cp(q,m))) ;
+C333b('WW',m)..                    WW*Csink('WW',m) =e=  (Sum(i,Fs(i,'WW')*Cont(i,m)) + Sum(q,(Frj(q,'WW'))*Cr(q,m)) + Sum(q,(Fpj(q,'WW'))*Cp(q,m)))   ;
+C441a(q,j)..                       yp(q,j) + yr(q,j) =g= 0 ;
+C446..                             sum(q,yp(q,'WW') ) =e= 0 ;
+C440(q,'1')..                      yp(q,'1') + yr(q,'1') =l= 1 ;
+C441(q,'2')..                      yp(q,'2') + yr(q,'2') =l= 1 ;
+C442(q,'3')..                      yp(q,'3') + yr(q,'3') =l= 1 ;
+C443(q,'WW')..                     yp(q,'WW') + yr(q,'WW') =g= 0 ;
+
+C90(J4)..             Fann(J4) - (Sum(i,Fd(i,j4)) + Sum(q,Fpn(q,J4)) + Sum(q,Frn(q,J4))) =e= 0 ;
+C10(J4,m)..           Fann(J4)*Can(J4,m)  =e= Sum(i,Fd(i,j4)*Cont(i,m)) + Sum(q,Fpn(q,J4)*Cp(q,m)) + Sum(q,Frn(q,J4)*Cr(q,m)) ;
+C11(q)..              (sum(J4,Fpn(q,J4)) + Sum(j,Fpj(q,j)) + Fper(q) ) =e= Fp(q);
+C12(q,m)..            (sum(J4,Fpn(q,J4)*Cp(q,m)) + Sum(j,Fpj(q,j)*Cp(q,m))+ (Fper(q)*Cp(q,m))  ) =e= Fp(q)*Cp(q,m)  ;
+C13(q)..              (sum(J4,Frn(q,J4)) + Sum(j,Frj(q,j))  ) =e= Fr(q) ;
+C14(q,m)..             sum(J4,Frn(q,J4)*Cr(q,m)) + Sum(j,Frj(q,j)*Cr(q,m)  ) =e= Fr(q)*Cr(q,m)  ;
+C15(J4,i)..           (Pan(j4) - Pwi)*Fd(i,j4) =e=0 ;
+C16(J4,q)..           (Pan(j4) - Pp(q))*Fpn(q,J4) =e= 0 ;
+C56(q,j)..            (Pp(q) - Prj)*Fpj(q,j) =g= 0 ;
+C17(J4,q)..           (Pan(j4) - Pr(q))*Frn(q,J4) =e=0 ;
+C55(J4,q,j)..         (Pr(q) - Prj)*Frj(q,j) =g=0 ;
+C58(q)..               Pf(q) =e=  Pr(q) + 0.22e5 ;
+
+C19(J4)..             (Pin(j4) - Pan(j4) )=g= eps ;
+C20(J4)..             (Pin(j4) - Pon(J4))=g= eps ;
+C200P(q)..            (Pr(q)- Prj)=g= eps;
+C200Pa(q)..           (Pp(q) - Prj) =g= eps ;
+C201Pa(J4,q)..        ((Pon(J4) - Pf(q))*Fan(J4,q)) =e= 0;
+C21(J4)..             Sum(q,Fan(J4,q)) =e= Fann(J4)   ;
+C21b..                sum((J4,q),Fan(J4,q))=e= sum(J4,Fann(J4)) ;
+C21ba..               sum(J4,Fann(J4))=e= sum(q,Ff(q)) ;
+C21a(J4,m)..          (Sum(q,Fan(J4,q)*Canq(q,m)) - Fann(J4)*Can(j4,m)) =e= 0 ;
+
+C22(q)..          Ff(q) - (Sum(J4,Fan(J4,q))  ) =e= 0 ;
+C23(q,m)..        Ff(q)*Cf(q,m) =e=  (Sum(J4,(Fan(J4,q)*Canq(q,m))) )  ;
+C25(J4)..         Pl*bn(j4) =l= (Pin(j4)- Pan(j4)) ;
+C43(J4)..         Pin(j4)- Pan(j4) =l=Pu*bn(j4) ;
+C26(j4)..         Pl*tn(j4) =L= Pin(j4)- Pon(J4)   ;
+C44(j4)..         Pin(j4)- Pon(J4) =L= Pu*tn(j4)   ;
+C27(j4)..         bn(j4) + tn(j4) =l= 1 ;
+C28(q)..          Fll('q1')*rq('q1') =l= Qf ;
+C45(q)..          Qf=l= Flu('q1')*rq('q1') ;
+C28c(q)..         Fll('q2')*rq('q2') =l= Ff('q2') ;
+C45c(q)..         Ff('q2')=l= Flu('q2')*rq('q2') ;
+C28a(q,m)..       Xl('q1',m)*rq('q1') =l= Cfd   ;
+C45a(q,m)..       Cfd=l= Xu('q1',m)*rq('q1') ;
+C28aa(q,m)..      Xl('q2',m)*rq('q2') =l= Xfs(m)   ;
+C45aa(q,m)..      Xfs(m)=l= Xu('q2',m)*rq('q2') ;
+C28aaa(n)..       XlNF(n)*rq('q3') =l= CfNF(n)  ;
+C45aaa(n)..       CfNF(n)=l= XuNF(n)*rq('q3')  ;
+C30a..            Pf('q1') =e= Pp('q1') + DPtot ;
+***------------------------------------------------------------RO-------------------------------------------------------------------
+
+Eq26..                            Ffro*Nmodule =e= Ff('q2') ;
+Eq26a..                           Fp('q2') -  Fpro*Nmodule =e= 0 ;
+Eq26b..                           Fr('q2') -  Frro*Nmodule =e= 0 ;
+Eq26c..                           Fpro +  Frro =e= Ffro   ;
+Eq27r(m)..                        Fpro*Xps(m)  =e=  Ffro*Xfs(m) - Frro*Xrs(m) ;
+Eq291(m)..                        Ffro*Xfs(m)*RR('q2',m) - Xrs(m)*Frro =e= 0 ;
+Eq28(m)..                         K(m)*Xs(m)  =l= Xps(m)*Aro*Sm*(deltaP('q2') - deltapi)*Lambda  ;
+Eq292..                           Fpro =e= Ffro*LR('q2')   ;
+Eq393..                           deltapi =g= HoffcoefNF*RNF*TNF* Sum(m,Xs(m)) ;
+Eq37..                            Pf('q2')  =g=  deltaPmq + Pr('q2');
+Eq391..                           Pf('q2')  =g= deltaP('q2') + ((deltaPmq/2) + Pp('q2') ) ;
+Eq392..                           deltaP('q2') + Pp('q2') =g= (Pf('q2') + Pr('q2'))/2  ;
+Eq41(m)..                         Xs(m) =e= (Xrs(m) + Xfs(m))/2 ;
+Bound05b(m)..                     Xfs(m) =e= Cf('q2',m)  ;
+Bound061..        Pf('q2') =l= Pmax ;
+Bound062..        Fopt =l= 0.27 ;
+Bound063..        Fopt =g= 0.21 ;
+Eq45..            Objro =e=  ((Cmodulero*Nmodule*Sm)+(Cchemicalsro*AOT*Ffro*Nmodule)) ;
+
+C30aa(q,m)..      Cp('q2',m) =e=  Xps(m)  ;
+C30b(q,m)..       Xrs(m) =e= Cr('q2',m)   ;
+C30aaa('q1',m)..  Cp('q1',m)  =e= Cped(m)   ;
+C30bb(q,m)..      Cwaste(m) =e= Cr('q1',m)   ;
+C30cc(q,m)..      Cfed(m) =e= Cf('q1',m)  ;
+C30d(q,m)..       Fso(m) - Fpm('q2',m) =g= 0 ;
+C30aaaa1(q,m)..     Cp('q3','TDS')*(1e3/MwNF('1')) =E= CpNF('1')  ;
+C30aaaa2('q3',m)..  Cr('q3','TDS')*(1e3/MwNF('1')) =g= CrNF('1') ;
+C30aaaa3(q,m)..     CfNF('1') =E= Cf('q3','TDS') *(1e3/MwNF('1'))   ;
+C35(q,m)..          Ff(q)*Cf(q,m) =e=  (Fp(q)*Cp(q,m) + Fr(q)*Cr(q,m)) ;
+C34(q)..            Fp(q) + Fr(q) =e= Ff(q) ;
+C34a(q)..           Fp(q) =e= Ff(q)*LR(q)  ;
+
+C36(i,j)..        Fs(i,j) =g= Mlbigm*y(i,j)  ;
+C46(i,j)..        Fs(i,j) =l= Mubigm*y(i,j)  ;
+C37(q,j)..        Fpj(q,j) =g=  Mlbigm*yp(q,j)  ;
+C47(q,j)..        Mubigm*yp(q,j) =g= Fpj(q,j)  ;
+C38(q,j)..        Frj(q,j) =g= Mlbigm*yr(q,j)   ;
+C48(q,j)..        Mubigm*yr(q,j) =g= Frj(q,j)   ;
+C39(i,j4)..       Mlbigm*ydn(i,J4) =l= Fd(i,J4)    ;
+C49(i,j4)..       Mubigm*ydn(i,J4) =g= Fd(i,J4)  ;
+SousCost2(q)..    STAC2('q2') =e= Cmod*Nsro('q2');
+*****------------------------------------------------------------------------Nanofiltration---------------------------------------------------------------------------------------------------------------------------
+
+Eq43aaanf(n)..         (JNF(n)*dSNF)  =e= Ff('q3')*CfNF(n)  ;
+Eq42nf(n)..            Fp('q3') =e= Nnano*QpNF  ;
+Eq42anf(n)..           Nnano*QfNF =e= Ff('q3');
+Eq42bnf(n)..           Fr('q3') =e= Nnano*QrNF ;
+Eq42cnf(n)..           QpNF =e=  QfNF*LR('q3') ;
+Eq43bnf(n,m)..         QrNF*CrNF(n) =l=  QfNF*CfNF(n)*RR('q3','TDS') ;
+Eq43nf(n)..            QfNF*CfNF(n) =g= ( QpNF*CpNF(n) + QrNF*CrNF(n))  ;
+Eq4nf..                QfNF =e= QpNF + QrNF  ;
+Eq8nf..                JvNF =e= (KwNF)* (DeltaPNF + PosNF)*1E-5  ;
+Eq81nf..               Pf('q3') =E= (PpNF + PosNF)  ;
+Eq82nf(n)..            PosNF  =e=  1e3*HoffcoefNF*RNF*TNF*((CwNF(n)+ CrNF(n))/2 ) ;
+Eq101nf(n)..           (CfNF(n) - (CpNF(n))) =e= RrealNF(n)*CfNF(n) ;
+Eq103nf(n)..           PmNF  =e=  Fp('q3')*1e3*3600/(dSNF*(Pf('q3') - Patm)*1.01325e-5) ;
+Eq143nf..              JvNF*dSNF =e= QpNF    ;
+Eq144nf..              PdesNF - EspecNF*QpNF =e= 0;
+Eq146nf..              EpuNF =e= ktr*dSNF**0.46 ;
+Eq27nf..               ObjNF =e=    Nnano*PdesNF + (CmoduleNF*Nnano + ((Nnano*kmbNF/tmaxNF)*dSNF)) ;
+
+EqPumpCost..          PumpTurbineCost =e= (Cpump*(SUM(q, 1.01325e-5*abs(Pf(q)- Patm)*Ff(q))**0.65)  + (Celec*AOT*(SUM(q, 1.01325e-5*abs(Pf(q)- Patm)*Ff(q)))/Efpump) )
+                 ;
+EqTurbineCost..       TurbineCost =e=  Ctur*sum((q,j),  yr(q,j)*1.01325e-5*(Pr(q)- Prj)*Frj(q,j))**0.43     ;
+EqTurbineElect..      TurbineElect =e=  Celec*AOT*( sum((q,j),(yr(q,j)*1.01325e-5*(Pr(q)-Prj)*Frj(q,j))*Eftur)) / (3600*24)   ;
+EqPipeCost..          PipeCost =e= ( AA*(sum(i,sum(j,dij(i,j)*(((pc*Fs(i,j))/(3600*vstr))   +qc*y(i,j)))))
+                          + AA*(sum(q,sum(j,dqj(q,j)*(((pc*Fpj(q,j))/(3600*vstr))  +qc*yp(q,j)))))
+                          + AA*(sum(q,sum(j,dqj(q,j)*(((pc*Frj(q,j))/(3600*vstr))  +qc*yr(q,j)))))
+                          + AA*(sum(q,sum(J4,dqn(q,J4)*(((pc*Fpn(q,J4))/3600*vstr) +qc*ypn(q,J4)))))
+                          + AA*(sum(q,sum(J4,dqn(q,J4)*(((pc*Frn(q,J4))/(3600*vstr))+qc*yrn(q,J4)))))
+                          + AA*(sum(i,sum(J4,Dd(i,J4)*(((pc*Fd(i,J4))/(3600*vstr)) +qc*ydn(i,J4))))) ) ;
+EqFWCost..            FWCost =e= (AOT*Cfw*FEW) ;
+EqWWCost..            WWCost =e= (AOT*Cww*WW )  ;
+
+C41..                 OBFtot  =e= ( PumpTurbineCost +  TurbineCost - TurbineElect + PipeCost+ FWCost + WWCost + OBF1 + objro + ObjNF + (AOT*sum(q,Fper(q)*Cws)) + Cchem*AOT*((sum((i,J4),ydn(i,J4)*Fd(i,J4)))) )  ;
+C41c..                OBFtotb  =e= WAPOBFtot + MBOBFtot ;
+C41b..                WAPOBFtot  =e= (  PipeCost+ FWCost + WWCost + (AOT*sum(q,Fper(q)*Cws)) + (AOT*sum(q,Fper(q)*Cws)) + Cchem*AOT*((sum((i,J4),ydn(i,J4)*Fd(i,J4)))) )  ;
+C41a..                MBOBFtot  =e= TurbineCost + TurbineElect +  PumpTurbineCost +  OBF1 + objro + ObjNF   ;
+
+C411..                Norm - OBFtot =e= 0 ;
+
+Bound101(m)..                     RRro(m) =l= 0.99;
+Bound102(m)..                     RRro(m) =g= 0.55;
+
+Parameter Fssub(i) /FW 0/;
+Parameter Fssub1(j) /Ww 0/;
+**---------------------------------------------------------------------------------------------------------------------------------------------------------------
+*---------------------------------------------------------INITIALISATION--------------------------------------------------------------------------------------------
+*ydn.l(i,J4) = 0;
+option WAPOBFtot:2;
+option MBOBFtot:2 ;
+option OBFtot:2;
+WAPOBFtot.l  = 0.25e6 ;
+MBOBFtot.l = 0.5e6 ;
+OBFtot.l = 0.75e6;
+muoa.l = 2.6e6;
+*Norm.up = 50e6;
+Norm.l = 1.5e6;
+*Norm.lo = 6.5e5;
+Cdelta.l(s) = 0.01 ;
+Cdelta.up(s) =  Cptarget;
+Cdelta.lo(s) = 0.0001 ;
+RRro.l(m) = 0.75;
+RRed.l(s) = 0.75;
+RRed.lo(s) = 0.3;
+r.lo = 0.50;
+alpha.up = 0.95;
+*r.fx = 0.75;
+*RR.l(q,m) = 0.75 ;
+RR.l('q1',m) = 0.72 ;
+RR.l('q2',m) = 0.95 ;
+RR.l('q3',m) = 0.62 ;
+RR.lo('q1',m) = 0.45 ;
+RR.lo('q2',m) = 0.65 ;
+RR.lo('q3',m) = 0.35 ;
+RR.UP('q3',m) = 0.75 ;
+RR.up('q1',m) = 0.85 ;
+RR.up('q2',m) = 0.98 ;
+LR.fx('q1') = 0.7 ;
+LR.fx('q2') = 0.7 ;
+LR.fx('q3') = 0.7 ;
+*LR.lo(q) = 0.45 ;
+*LR.up(q) = 0.97 ;
+r.l = 0.9;
+mix.lo = 0.7;
+mix.l = 0.9;
+u.lo(s) = 0.01;
+u.fx(s) = 0.111;
+*Cd.l(s) = 0.0001;
+Cped.up(m) = Cptarget;
+Cpe.l(m) = 1e-4 ;
+Cpe.lo(m) = 1e-8 ;
+Cfed.lo(m) =  1e-8 ;
+Cwaste.l(m) = 0.75;
+Cwaste.lo(m) = 5e-7;
+Cped.l(m) = 0.1e-3;
+Cped.lo(m) = 0.1e-6;
+Cfd.l =  0.001  ;
+Cfed.l(m) =  0.016  ;
+*Cd.lo(s) =  Cptarget  ;
+Cd.l(s) =  2e-4   ;
+Cc.l('1') = Xu('q1','TDS') + Cptarget ;
+Cd.l('1') = Xu('q1','TDS') ;
+Cd.l(s) = 0.85*(Xu('q1','TDS')-Cptarget) + Cptarget   ;
+
+Cc.up(s) = 0.71 ;
+*Cc.l(s) = 1.5*C_fd ;
+Cc.l(s) = 1.5*Xu('q1','TDS') ;
+*Cc.lo(s) = C_fd ;
+Cc.lo(s) = Xl('q1','TDS') ;
+Cfc.lo = 0.00001 ;
+Ccr.lo = 1e-6 ;
+
+Ccr.l = Xl('q1','TDS') + Cptarget ;
+Objro.l = 50e4;
+*Objro.lo = 1e3;
+*OBF1.l = 1e4;
+*OBFtot.l = 1.5e5;
+OBF1.l = 0.52e5;
+*OBF1.l = 1e3;
+*ObjNF.lo = 1e4;
+ObjNF.l = 45.5e4;
+*OBFtot.l = 1.3e6 ;
+*OBFtot.lo= e4 ;
+OBFtot.l= 4.25e5;
+*OBFtot.l= 43.58e6;
+*OBFtot.up= 5e7 ;
+*OBFtot.l = 40e6 ;
+slack1.l = 0.06 ;
+*OBFtot.lo = 23.5e5 ;
+*OBFtot.lo = 29.35e5 ;
+*OBFtot.l = 3e5;
+dummyobf1.l = 1e3;
+dummyobf1.lo = 1;
+Ned.l = 2 ;
+Width.l = 0.55 ;
+Width.lo = 0.4 ;
+Width.up = 0.6 ;
+Fs.fx('FW','WW') = 0;
+*Fs.l('2','4') = 4.81e-1;
+*Fs.l('4','3') = 0.0457;
+Fs.l('2','3') = 0.0047;
+Fs.l('3','3') = 0.037;
+*Fs.l('3','4') = 0.137;
+Fs.l('3','2') = 0.0837;
+*Fs.l('4','1') = 0.021;
+Fs.l('3','1') = 0.051;
+Fs.l('1','1') = 0.0421;
+*Fs.l('4','4') = 0.321;
+Fs.l('1','2') = 0.001;
+Fs.l('FW','2') = 0.001;
+Fs.l('FW','3') = 0.001;
+Fs.fx(i,'WW') = 0;
+*Fs.up(i,j) = 1;
+y.fx(i,'WW')= 0;
+y.fx('FW','WW')= 0;
+y.l('FW','3')= 1;
+*y.l('FW','4')= 1;
+y.l('3','1')= 1;
+y.l('3','2')= 1;
+y.l('3','3')= 1;
+*y.l('3','4')= 1;
+y.l('1','2')= 1;
+y.l('2','3')= 1;
+*y.l('4','2')= 1;
+y.l('2','1')= 0;
+y.lo(i,j)= 0;
+y.up(i,j) = 1;
+*N.l = 125;
+*Ned.l = 150 ;
+*mix.l = 0.5;
+PumpTurbineCost.l = 2.5e3 ;
+*PumpTurbineCost.lo = 1 ;
+FEW.l = 1e-3;
+FEW.l = 1.5e-9;
+*FEW.up = 1e-3*Flim('FW');
+WW.l = 0.03;
+WW.lo = 1E-5;
+*WW.up = 1e-3*Fslim('WW');
+*Cw.lo = 0.0005005;
+
+*$ontext
+Cw.l = 0.05005;
+*Cw.lo = C_fd;
+*Cw.lo = Xu('q1','NaCl');
+Cr.l('q1','TDS') = 1.1*Xu('q1','TDS');
+*V.lo(s)= 19;
+*V.l(s)= 60;
+V.lo(s)= 1;
+*V.lo(s)= 3;
+V.l(s)= 90;
+*V.up(s)= 200;
+V.l(s)= 200;
+Aed.l(s) = 2.5;
+Aed.lo(s) = 1;
+*A.up(s) = 10;
+*A.lo(s) = 560;
+Aed.l(s) = 10;
+Atot.l = 500;
+Qcr.l = 0.00001e3;
+Qw.lo = 3e-4;
+Qm.l = 0.015;
+Qr.l = 0.0025;
+Qm.lo = 0.001;
+Qr.lo = 0.001;
+Qd.l = 0.004050e3;
+*Qd.lo = Qp;
+Qd.lo = Qptarget;
+Qced.l = 0.004050;
+Qp.lo = Qptarget;
+Qp.l = 6.01e-4;
+Qf.l = 0.045;
+*Qf.lo = Qp ;
+Qf.lo = Qptarget ;
+*0.004050;
+*E_spec.lo(s) = 0.00000001 ;
+Espec.lo(s) = 0.75 ;
+
+Espec.lo('1') = 0.004 ;
+Espec.up(s) = 15 ;
+DP.up(s)= 101325;
+*DP.l(s)= 68770 ;
+DP.l(s)= 68770 ;
+*DP.lo(s)= 55000 ;
+DP.lo(s)= 10000 ;
+DPtot.l = 401325;
+DPtot.lo = 300000;
+DPtot.up = 600000;
+DP.l(s)= 1e5;
+Epu.lo(s)= 0.05;
+
+Epu.l(s)= 0.2;
+Epu.up(s)= 1.50;
+*N.lo = 246;
+
+*N.up = 247;
+Ned.l = 5 ;
+Ned.up = 15 ;
+Ned.lo = 1;
+Lstack.l = 0.98;
+Lstack.lo = 0.7;
+Lstack.up = 1.6;
+Nstack.l = 150;
+Nstack.lo = 50;
+Nstack.up = 250;
+*Shadow factor 0.60–0.75
+*I.l(s) = 5 ;
+Ied.l(s) = 100 ;
+Ied.up(s) = 200 ;
+Ied.l(s) = 56 ;
+Ilim.lo(s) = 10   ;
+Ilim.l(s) = 32   ;
+*I_lim.up(s) = 350   ;
+Iprac.lo(s) = 0.20 ;
+Iprac.l(s) = 0.20 ;
+Linear1.l(s) = 0.01;
+
+Pdes.l(s) = 0.005 ;
+*dH.lo = 0.01;
+Pdes.l(s) = 0.981e5;
+*P_des.l(s) = 0.981;
+Pdes.lo(s) = 0.00100;
+Pdes.lo('1') = 0.00100;
+****************-------------------------------------------------------------Nanofiltration-------------------------------------------------------------------------------------
+slack2NF.l(n) = 1e-7 ;
+slack2NF.l(n) = 1e-9 ;
+Nnano.l = 3;
+Nnano.lo =1 ;
+*Nnano.l =2 ;
+Nnano.up =5 ;
+Par1NF.scale(n) = 1e5 ;
+PAR1NF.l(n) = 1e4 ;
+PAR1NF.lo(n) = 1e-9 ;
+PAR1NF.up(n) = 8e9 ;
+*slack2NF.lo(n) = 1e-10 ;
+*slack2NF.up(n) = 1e-4 ;
+slack3NF.l(n) = 3.5e-7 ;
+RRNF.l(m) = 0.65 ;
+RRNF.up(m) = 0.85 ;
+*RRNFn.l(n) = 0.45 ;
+RRNFn.up(n) = 0.95 ;
+*slack3NF.up(n) = 6 ;
+QpNF.l = 1.7e-2;
+QpNF.lo = 1e-8;
+QpNF.up = 12;
+QrNF.l = 1e-3;
+QrNF.lo = 1e-6;
+QrNF.up = 11;
+DoutNF.l = 1e-6;
+DoutNF.lo = 1e-9;
+*Recovery.l = 1e-3;
+*ep.fx = 41.3 ;
+EpuNF.l = 2e4;
+*E_pu.l = 5.001;
+EpuNF.lo = 1e-6;
+EpuNF.l = 1e-4;
+VelNF.l = 0.3;
+IonNF.l = 0.5 ;
+*IondxNF.up = 100.5 ;
+IondxNF.l = 0.5 ;
+IondxNF.l = 1e-6;
+IondxNF.lo = 1e-8;
+IonpNF.l = 1.5e-1 ;
+IonpNF.lo = 0.5e-8 ;
+IonxoNF.l = 0.5 ;
+PeNF.up(n) = 9e9;
+*Eq_14nf.scale(n) =1e2;
+*Eq_7_1nf.scale(n) =1e-6;
+*Eq_7_6anf.scale(n) =1e-6;
+*Eq_7_3.scale(i) =1e6;
+PeNF.l(n) = 6e7;
+PeNF.scale(n) = 6e3;
+PdesNF.l = 6e-3;
+VelNF.fx = 1;
+*VelNF.l = 0.23;
+*VelNF.lo = 0.20;
+VelNF.up = 5;
+lambdaNF.up(n) = 0.9851 ;
+lambdaNF.l(n) = 0.90 ;
+lambdaNF.l(n) = 0.955 ;
+lambdaNF.lo(n) = 0.001;
+*ObjNF.up = 0.5e6;
+*ObjNF.lo = 1;
+dummyNF.l = 4e5 ;
+dummyNF.lo = 1e3  ;
+*dummy.lo = 1  ;
+effthickNF.l = 1.33e-6  ;
+effthickNF.lo = 1e-6  ;
+*effthickNF.up = 0.01  ;
+*effthick.up = 1e-3  ;
+efflengthNF.l = 1  ;
+efflengthNF.up = 2  ;
+efflengthNF.lo = 1e-7  ;
+KwNF.l = 1e-3 ;
+KwNF.l = 12.6e-4 ;
+KwNF.l = 12.6e-7 ;
+KwNF.lo = 1e-7 ;
+rpNF.lo = 0.5e-9 ;
+rpNF.l = 0.5e-9 ;
+*rp.up = 1e-7 ;
+XdNF.l = 2.3 ;
+XdNF.l= 2.83 ;
+dCNF.l(n)   = 1e-3;
+dCNF.lo(n)   = 1e-8;
+*Cavg.l(i) = 1e1;
+*dSNF.l   = 16.92e-5;
+*dSNF.l   = 1e-3;
+*dSNF.lo   = 1e-8;
+dNF.l = 51.4e-3;
+*dNF.lo = 7e-9 ;
+
+*m.l = 0.5;
+slacknf.l = 1e-7;
+*N.l = 100;
+QfNF.l = 1.5e-3;
+*QfNF.l = 5e-5;
+QfNF.up = 150;
+QfNF.lo = 1e-9;
+CNF.l(n) = 10;
+*CNF.l(n) = 1e-3;
+CrNF.l(n) = 1e-2;
+*CrNF.lo(n) = 1e-7;
+*C.up(i) = 1e2;
+CpNF.l(n) = 2.15e-4;
+CfNF.l(n) = 1.75;
+*CrNF.l(n) = 12.5;
+CrNF.l(n) = 13.5e-4;
+*C.up(i) = 1e2;
+*CpNF.l(n) = 0.14e-3;
+*CpNF.l(n) = 1.15e-4;
+*CpNF.up(n) = 1.15;
+CpNF.lo(n) = 1.15e-8;
+*CwNF.l(n) = 15;
+*CpNF.up(n) = 1.15;
+*CpNF.lo(n) = 1.15e-9;
+CwNF.l(n) = 5;
+*DeltaP.l = 3e5;
+DeltaPNF.l = 2e5;
+DeltaPNF.l = 1e2;
+*DeltaP.l = 5e5;
+DeltaXNF.l = 25e-2;
+DeltaXNF.l = 20e-4;
+*DeltaXNF.l = 60e-9;
+DeltaXNF.lo = 1e-6;
+*jNF.l(n) = 1.5e-3;
+jNF.l(n) = 2.6e-5;
+jNF.lo(n) = 1e-7;
+jvNF.l = 1e-4;
+jvNF.lo = 1e-7;
+KmNF.l(n) = 8.1e-5;
+*KmNF.l(n) = 1e-6;
+KmNF.lo(n) = 1e-8;
+*KdNF.l(n) = 5;
+KdNF.l(n) = 1e-4;
+KdNF.lo(n) = 1e-8;
+*Kc.l(i) = 1e1;
+*KcNF.l(n) = 1;
+KcNF.l(n) = 6e-3;
+KcNF.lo(n) = 1e-7;
+*C.l(i) = 1e-6;
+CNF.l(n) = 10.5e-2;
+CNF.lo(n) = 1e-8;
+*CxoNF.l(n) = CwNF.l(n)*0.525 ;
+CxoNF.l(n) = 1.5e-1 ;
+CdxNF.lo(n) = 1e-7 ;
+*CdxNF.l(n) = 1.75*CdxNFl(n);
+CdxNF.lo(n) = 0.0001*CdxNFl(n);
+ScNF.l(n) = 1e-3;
+ScNF.lo(n) = 1e-5;
+RrealNF.l(n) = 0.838 ;
+*RrealNF.lo(n) = 0.35 ;
+rejlimNF.l(n) = 0.01;
+dNF.l = 0.1;
+PosNF.l = 1e4;
+PmNF.l = 0.7 ;
+PmNF.lo = 0.5 ;
+PmNF.up = 1.5 ;
+PosNF.lo =1;
+DeltaphiNF.l = 10;
+DpNF.l(n) = 1.8e-6;
+DpNF.lo(n) = 0.1*DinfNF(n);
+DpNF.up(n) = 1e-3;
+
+phiBNF.l = 0.5;
+phiBNF.lo = 0.001;
+phiNF.up(n) = 2.01;
+phiNF.l(n) = 0.2855;
+phiNF.lo(n) = 1e-8;
+*Par1NF.l(n) = 8e5 ;
+*Pf.l('q3') = 15.05e5;
+PfNF.l = 5.05*PpNF;
+PfNF.lo = 1;
+gammaporepNF.l(n)= 0.5;
+gammaporeNF.l(n)= 5e-2;
+gammapNF.l(n) = 0.5;
+gammamNF.l(n) =  1e-2;
+gammaporeNF.up(n)= 1;
+gammapNF.up(n) = 1;
+gammaporepNF.up(n)= 1;
+gammamNF.up(n) =  1;
+
+******************************--------------------------------------*************************************************------------------------------------
+
+***---------------------------------------------------------------------------------Superstructure and RO--------------------------------------------------
+PmRO.l = 1.25 ;
+PmRO.lo = 1e-2 ;
+PmRO.up = 13.5 ;
+alpha.lo = 0.6;
+Nturbine.l =1e1   ;
+Nturbine.l =-7e2 ;
+Nturbine.up =1e7 ;
+Nmodule.l = 3 ;
+Nmodule.lo = 1 ;
+Nmodule.up = 20 ;
+Nsro.l('q2') = 100;
+Nsro.lo('q2') = 1;
+*Xfs.l(m) = Xl('q2',m);
+Xfs.l(m) = 5.8e-2;
+Cf.l('q1',m) = 15.1e-2;
+Cf.l('q2',m) = 13.8e-2;
+Cf.l('q3',m) = 1.746;
+Cp.l('q3',m) = 0.014;
+Cp.l('q2',m) = 0.00002;
+Cp.lo('q2',m) = 6e-7;
+Cp.l('q1',m) = 1.8e-4;
+Cp.lo('q3',m) = 1e-9;
+Cp.lo('q1',m) = 1e-8;
+Xps.l(m) = 0.00012648;
+Xps.lo(m) = 1e-8;
+Xrs.l(m) = 5.0748;
+*Xrs.lo(m) = Xl('q2',m);
+Xrs.lo(m) = 1e-5;
+Cr.l('q3',m) = 55E-1;
+Cr.l('q2',m) = 407.5E-2;
+Cr.l('q1',m) = 41.5E-1;
+PWturbine.lo = 0.005;
+
+Pf.l('q1') = 188132;
+Pf.l('q3') = 8.67e5;
+Pf.l('q2') = 7.5e5;
+
+Pr.l('q1') = 245325;
+Pr.l('q2') = 701325;
+Pr.l('q3') = 501325;
+
+Pf.lo('q2') = 3.5e5;
+Pf.up('q2') = 30.e5;
+Pf.lo('q1') = 252325;
+Pf.lo('q3') = 451325;
+Pf.up('q3') = 30e5;
+RRro.lo(m) = 0.28 ;
+RRro.l(m) = 0.9862068 ;
+deltapi.l = 10e-4;
+deltapi.lo = 10e-7;
+deltaP.l(q) = 30e4;
+deltaP.lo(q) = 10e-3;
+Nsro.lo(q)=1;
+Nsro.up(q)=300;
+TAC.l(q)= 7.4e4;
+TAC.lo(q)= 1;
+*TAC(q,J4)
+bn.lo(j4) = 0;
+tn.lo(j4) = 0;
+rq.lo(q) = 1 ;
+rq.fx(q) = 1 ;
+yp.lo(q,j)= 0;
+yr.lo(q,j)= 0;
+y.lo(i,j)= 0;
+bn.l(j4) = 1;
+ydn.l(i,J4) = 1;
+ydn.l('FW','No4') = 1;
+ydn.l('FW','No3') = 1;
+ydn.l('FW','No5') = 1;
+ydn.l('FW','No1') = 1;
+ydn.l('FW','No2') = 1;
+ydn.l('2','No4') = 1;
+ydn.l('3','No1') = 0;
+*ydn.l('4','No5') = 1;
+*ydn.l('4','No2') = 1;
+ydn.l('1','No3') = 0;
+ydn.l('1','No5') = 1;
+ydn.l('2','No5') = 1;
+*ydn.l('4','No5') = 1;
+ydn.l('2','No3') = 1;
+ydn.l('3','No2') = 1;
+ydn.l('3','No3') = 1;
+ydn.l('3','No4') = 1;
+*ydn.l('4','No4') = 1;
+*ydn.l('4','No3') = 1;
+ydn.l('1','No1') = 1;
+ydn.l('1','No2') = 1;
+ydn.lo(i,J4) = 0;
+yrmb.l(q,qq) = 1;
+ypmb.l(q,qq) = 1;
+y.up(i,j) = 1;
+bn.up(j4) = 1;
+tn.up(j4) = 1;
+rq.up(q) = 1 ;
+yp.up(q,j)= 1;
+*yp.fx(q,'wastewater')= 0;
+
+yr.up(q,j)= 1;
+*y.up(i,j)= 1;
+*ydn.up(i,J4) = 1;
+
+bn.l('No1') = 1;
+tn.l('No5') = 0;
+bn.l('No5') = 1;
+bn.l('No4') = 1;
+bn.l('No3') = 1;
+tn.l('No3') = 0;
+bn.l('No2') = 1;
+tn.l('No4') = 0;
+tn.l('No2') = 0;
+tn.l('No1') = 0;
+rq.l(q) = 1 ;
+yp.l('q1','1')= 1;
+yp.l('q1','2')= 1;
+yp.l('q1','3')= 1;
+yp.l('q2','1')= 1;
+yp.l('q2','2')= 1;
+yp.l('q2','3')= 1;
+yp.l('q3','1')= 1;
+yp.l('q3','2')= 1;
+yp.l('q3','3')= 0;
+yp.l(q,'WW')= 1;
+*yp.fx(q,'WW')= 0;
+yr.l('q3','1')  = 0;
+yr.l('q3','3')  = 1;
+yr.l('q1','2')  = 0;
+*yr.l('q2','4')  = 0;
+yr.l('q1','1')  = 0;
+yr.l('q2','3')  = 0;
+yr.l(q,'WW')  = 1;
+yr.l(q,j)$(card(j) le 4)  = 0;
+
+*Fstr.l(i) = 13.65;
+*Fstr.l(i) = 0.65*0.2778*Flim(i);
+Fstr.fx('1') = 1e-3*Flim('1');
+Fstr.fx('2') = 1e-3*Flim('2');
+Fstr.fx('3') = 1e-3*Flim('3');
+*Fstr.fx('4') = 1e-3*Flim('4');
+Fstr.l('FW') = 3.7e-4;
+*Fwj.l(j) = 0.801*0.2778*Fslim(j);
+
+Fstr.up(i) = 1e-3*Flim(i);
+Fwj.up(j) = 1e-3*Fslim(j);
+Fwj.fx('1') = 1e-3*Fslim('1');
+Fwj.fx('2') = 1e-3*Fslim('2');
+Fwj.fx('3') = 1e-3*Fslim('3');
+*Fwj.fx('4') = 1e-3*Fslim('4');
+Fwj.l('WW') = 7.2e-4;
+Fwj.lo('WW') = 1e-8;
+
+
+Fd.l('2','No2') = 4.01e-3;
+Fd.l('1','No1') = 3.7e-3;
+Fd.l('3','No3') = 0.00253;
+Fd.l('3','No5') = 0.00453;
+Fd.l('3','No1') = 0.0353;
+Fd.l('3','No4') = 0.0023;
+*Fd.l('4','No1') = 0.0145;
+Fd.l('1','No5') = 0.00179;
+*Fd.l('4','No4') = 0.0245;
+Fd.l('2','No5') = 0.079;
+Fd.l('FW','No5') = 1e-3;
+Fd.l('FW','No2') = 1e-3;
+Fd.l('FW','No4') = 1e-4;
+Fd.l(i,J4) = 1e-5;
+*Fd.fx('FW',J4) = 0 ;
+Ff.l('q1') = 3.5e-2;
+Ff.l('q2') = 21e-3;
+Ff.l('q3') = 3e-2;
+
+Ff.lo('q1') = 1e-9;
+Ff.lo('q2') = 1e-9;
+Ff.lo('q3') = 1e-6;
+
+Fp.l('q3') = 2.17e-2;
+Fp.l('q2') = 14.2e-3;
+Fp.l('q1') = 2.6e-1;
+Fp.lo('q3') = 1e-8;
+Fp.lo('q2') = 1e-4;
+Fp.UP(q) = 1;
+Fper.l('q3') = 4e-5;
+Fper.l('q2') = 1e-5;
+Fper.l('q1') = 2e-5;
+*Fperm.fx('q1',qq) = 0;
+*Fpn.lo(q,JO)= 0.01;
+Fr.l('q1') = 0.7e-1;
+Fr.l('q2') = 7e-3;
+Fr.l('q3') = 0.95e-2;
+
+Fpro.l = 5e-4 ;
+Ffro.l = 0.0052 ;
+Frro.l = 2e-4 ;
+
+Fpro.lo = 0.000001 ;
+Frro.lo = 0.000001 ;
+*
+Frn.l(q,'No2')= 43e-3;
+Frn.l(q,'No5')= 5e-4;
+Frn.l(q,'No1')= 3e-4;
+Frn.l(q,'No4')= 35e-4;
+Frn.l('q1','No3')= 17e-3;
+Frn.l('q2','No3')= 27e-3;
+Frn.l('q3','No3')= 47e-3;
+Fpn.l(q,'No4')= 65e-4;
+Fpn.l(q,'No1')= 45e-4;
+Fpn.l(q,'No5')= 3e-4;
+Fpn.l(q,'No2')= 25e-4;
+Fpn.l('q1','No3')= 25e-4;
+Fpn.l('q2','No3')= 15e-4;
+Fpn.l('q3','No3')= 23.4e-4;
+Fann.l('No1')= 0.0948;
+Fann.l('No5')= 2.48e-4;
+Fann.l('No2')= 0.0648;
+Fann.l('No3')= 0.0248;
+Fann.l('No4')= 0.0875;
+Fann.l(J4)= 1.01e-2;
+Fann.up(J4)= 13;
+Fann.lo(J4)= 1e-5;
+
+Frj.l('q3','1')= 15e-3;
+Frj.l('q1','3')= 35e-2;
+*Frj.l('q2','4')= 25e-2;
+Frj.l('q1','2')= 55e-2;
+Frj.l('q3','2')= 15e-3;
+*Frj.l('q1','4')= 35e-2;
+Frj.l('q2','3')= 25e-2;
+Frj.l('q3','3')= 65e-2;
+Frj.l('q1','1')= 55e-2;
+Frj.l(q,'WW')= 65e-2;
+Fpj.l('q3','WW')= 21e-3;
+Fpj.l('q1','2')= 31e-3;
+Fpj.l('q2','2')= 11e-3;
+*Fpj.l('q3','4')= 1.15e-4;
+Fpj.l('q3','3')= 0.5e-4;
+Fpj.l('q1','1')= 37e-3;
+Fpj.l('q2','3')= 9e-3;
+Fpj.l('q1','3')= 29e-3;
+Fpj.l('q3','2')= 2.5e-4;
+*Fpj.l('q3','4')= 0.25e-4;
+Fpj.fx(q,'WW')= 0;
+
+Fan.l(J4,q)= 1e-4;
+Fan.up(J4,q)= 12;
+Fan.lo(J4,q)= 1e-5;
+
+Can.l('No1',m)= 259e-3 ;
+Can.l('No2',m)= 39e-2 ;
+Can.l('No3',m)= 61e-3 ;
+Can.l('No4',m)= 8e-2 ;
+Can.l('No5',m)= 334e-3 ;
+*Can.up(J4,m) = 1;
+Canq.l('q1',m)= 36e-2;
+*Canq.l('q1',m)= 59e-2;
+Canq.l('q2',m)= 45e-2;
+Canq.l('q3',m)= 8.96;
+Csink.up(j,m)$(ord(j) <> 5) = Conta(j,m) ;
+Csink.l(j,m)$(ord(j) <> 5) = 0.988*Conta(j,m) ;
+Csink.lo(j,m)$(ord(j) <> 5) = 1e-3*Conta(j,m) ;
+Csink.l('WW',m) = 300 ;
+Csink.up('WW',m) = Conta('WW',m) ;
+Csink.lo('WW',m) = 0.00002 ;
+Pan.l('No1')= 6e5;
+Pan.l('No4')= 4e5;
+Pan.l('No3')= 8e5;
+Pon.l('No2')= 3e5;
+Pon.l('No5')= 2e5;
+Pon.l('No1')= 4e5;
+Pan.lo(j4)= 101325 ;
+Pin.l('No2')= 3e5;
+Pin.l('No4')= 2e5;
+Pin.l('No1')= 4e5;
+Pan.l(j4)= 701325 ;
+Pan.lo(j4)= 101325 ;
+Pin.l(j4)= 2.5e5;
+Pin.up(j4)= 68e5;
+Pan.up(j4)= 1.01325e5;
+
+Pon.l(J4)= 501325;
+Pon.lo(J4)= 101325;
+*$offtext
+**************------------------------*********************----------------------------**************************-------
+
+*-----------------------------Logical constraints to make the network run---------------------------------------------
+*$ontext
+****-----------------------------------*************************-------------------------------------------------------------------
+equations
+dummy
+dummy1
+*dummy2
+*dummy3
+*dummy4
+*dummy5
+*dummy6
+*dummy6a
+*dummy5a
+*dummy5b
+*dummy6
+*dummy7a
+*dummy7b
+*dummy8
+*dummy8a
+*dummy9
+*dummy9a
+dummy9b
+*dummy10
+*dummy11
+*dummy10a
+dummy11a(i) ;
+
+dummy(j,j4)$(ord(j) <> card(j)) .. sum(q,rq(q))+ bn(j4) + tn(j4) + sum((q),yp(q,j))+  sum((i),y(i,j)) + sum((i),ydn(i,j4)) =g=  14   ;
+dummy1..  sum((i,j),y(i,j)) + sum((q,j),yp(q,j)) + sum((i,j4),ydn(i,j4)) =g= 23  ;
+dummy9b..    sum(j,sum(q,(yp(q,j)))) =g= 3 ;
+dummy11a(i)..   sum((j4),(ydn(i,j4))) =g= card(i) -2  ;
+********************-------------------------------------------*************---------------------------------------------------------------------------
+Model TWNSBBox1 /all/;
+*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Model TWNSWAP1 /C10,C11,C12 ,C13,C14,C21,C21a,C22,C23,C28,C28a,C28c,C45c,C34,C35,C36,C37,C38,C45a,C28aa,C45aa,C28aaa,C45aaa,C39,C45,
+C46,C47,C48,C49,C58,SousCost2,C90,BS11,BS12,BSi1a,C333b,BS11a,BSi1,BS12a,C333a,C440,C441,C441a,C442,C443,C446,MB1,MB12,C30b,C34a,C21b,
+C21ba,Eq1,Eq1a,Eq5b,Eq7,Eq9b,Eq12,Eq151,Eq152,Eq153,Eq153a,Eq154,Eq154a,Eq156,Eq156a,Eq16,Eq171,Eq18,Eq26a,Eq26b,Eq26c,Eq13a,Bound021,Bound022,Bound023,Bound041,
+Bound042,Bound091,Bound092,Bound095,Bound096,Bound101,Bound102,Eq27,Eq37,Eq391,Eq392,Eq42nf,Eq42anf,
+Eq42bnf,Eq42cnf,Eq43nf,Eq43bnf,Eq43aaanf,Eq4nf,Eq8nf,Eq81nf,Eq82nf,Eq101nf,Eq103nf,Eq143nf,Eq144nf,Eq155,Eq146nf ,
+EqPipeCost,EqFWCost,EqWWCost,Eq27nf,C41b,dummy,dummy1,dummy9b,dummy11a /;
+*-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Model WMTS1 / Eq5b,Eq7,Eq9b,Eq13a,Eq12,Eq1,Eq1a,Eq18,Eq16,Eq171,Eq151,Eq152,Eq153,Eq153a,Eq154,Eq154a,Eq156,Eq156a,
+Eq155,Bound021,Bound022,Bound023,Bound041,Bound042,Bound091,Bound092,Bound095,Bound096,Eq27,
+C58,C28,C45, C28c,C45c,C28a, C45a,C28aa,C45aa,C28aaa,C45aaa,C30a,Eq26,Eq26a,Eq26b, Eq26c,Eq27r,Eq291,
+Eq28,Eq292, Eq393,Eq37,Eq391,Eq392, Eq41,Bound05b, Bound061, Bound062,Bound063,Eq45,C30aa,C30b,C30aaa,C30bb,C30cc,
+C30d,C30aaaa1,C30aaaa2,C30aaaa3,C35,C34,C34a,SousCost2,Eq43aaanf,Eq42nf,Eq42anf,Eq42bnf,Eq42cnf,
+Eq43bnf,Eq43nf,Eq4nf,Eq8nf, Eq81nf, Eq82nf,Eq101nf,Eq103nf,Eq143nf,Eq144nf,Eq146nf,Eq27nf,C41c,C41a,
+EqTurbineCost,EqTurbineElect,EqPumpCost/;
+*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+TWNSBBox1.optfile=1;
+TWNSWAP1.optfile=1;
+WMTS1.optfile=1;
+
+OPTION Savepoint=1;;
+Option sysout = on;
+option optca = 0;
+option optcr = 0;
+Option subsystems;
+TWNSBBox1.scaleopt=1;
+TWNSWAP1.scaleopt=1;
+WMTS1.scaleopt=1;
+ Execerror = 0;
+Option RESLIM = 100000;
+*option reslim = 65000 ;
+option domlim = 6e4 ;
+
+*maxexecerror = 100000;
+*option sys10 = 1;
+*option sys12 = 1;
+*Option Integer5 = 1;
+Option MIP = CPLEX;
+
+*Option MINLP = DICOPT;
+option minlp= baron;
+Option rMINLP = CONOPT;
+Option NLP = CONOPT3;
+
+*Solve TWNSBBox1 using rMINLP minimizing Norm;
+Solve TWNSBBox1 using MINLP minimizing Norm;
+*Solve TWNSBBox1 using rMINLP minimizing OBFtot;
+
+Option sysout = on;
+Option solprint = on;
+$ontext
+*execute_Unload 'TWNSblackbox';
+
+*Option NLP = CONOPTD;
+Solve TWNSBBox using rMINLP minimizing Norm;
+*$ontext
+execute_Unload 'TWNSBBox';
+execute_load 'TWNSBBox';
+*ff.fx(q) = ff.l(q) ;
+*Cf.fx(q,m) = Cf.l(q,m) ;
+*rr.l(q,m) = rr.l(q,m) ;
+*Solve WMTS using MINLP minimizing MBOBFtot;
+*$ontext
+
+option minlp = dicopt; Solve TWNSWAP using MINLP minimizing WAPOBFtot;
+execute_Unload 'TWNSWAP';
+execute_load 'TWNSWAP';
+
+ff.fx(q) = ff.l(q) ;
+Cf.fx(q,m) = Cf.l(q,m) ;
+rr.l(q,m) = rr.l(q,m) ;
+option minlp = dicopt; Solve WMTS using MINLP minimizing MBOBFtot;
+execute_Unload 'WMTS';
+execute_load 'WMTS';
+fp.fx(q) = fp.l(q) ;
+Cp.fx(q,m) = Cp.l(q,m) ;
+fr.fx(q) = fr.l(q) ;
+Cr.fx(q,m) = Cr.l(q,m) ;
+rr.fx(q,m) = rr.l(q,m) ;
+option minlp = baron;Solve TWNSWAP using MINLP minimizing WAPOBFtot;
+execute_Unload 'TWNSWAP';
+execute_load 'TWNSWAP';
+ff.fx(q) = ff.l(q) ;
+Cf.fx(q,m) = Cf.l(q,m) ;
+*rr.l(q,m) = rr.l(q,m) ;
+
+option minlp = baron;Solve WMTS using MINLP minimizing MBOBFtot;
+execute_Unload 'WMTS';
+execute_load 'WMTS';
+fp.fx(q) = fp.l(q) ;
+Cp.fx(q,m) = Cp.l(q,m) ;
+fr.fx(q) = fr.l(q) ;
+Cr.fx(q,m) = Cr.l(q,m) ;
+rr.fx(q,m) = rr.l(q,m) ;
+
+option minlp = baron;Solve TWNSWAP using MINLP minimizing WAPOBFtot;
+execute_Unload 'TWNSWAP';
+execute_Unload 'WMTS';
+execute_loadDC 'TWNSWAP';
+execute_loadDC 'WMTS';
+*ff.fx(q) = ff.l(q) ;
+*Cf.fx(q,m) = Cf.l(q,m) ;
+*rr.l(q,m) = rr.l(q,m) ;
+
+*$offtext
+option minlp = baron;Solve TWNSBBox using MINLP minimizing OBFtot;
+$offtext
