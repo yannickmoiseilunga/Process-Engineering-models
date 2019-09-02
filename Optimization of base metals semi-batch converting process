@@ -1,0 +1,1499 @@
+$Title: Mathematical model of the dynamic behaviour of a base metal matte converter using elemental balance and full discretization by orthogonal collocation method$
+$OFFUPPER
+$ONSYMXREF ONSYMLIST
+*$onuelxref
+option sysout = on;
+OPTION SOLPRINT = ON;
+*OPTION LIMROW = 0 ;
+
+*This file shows the dynamic behaviour of a base metal matte converter. Full discretization of the
+*model and input, output variables renders the problem as a NLP. Given the set of the main chemical reactions,
+*a mathematical model was developed combining dynamic mass and energy balance on elemental compounds (C, H, O,....)
+*and stable stables(SiO2, Al2O3,...). An Objective function maximizing profit or minimizing environmental impact was incorporated the model.
+*The Optimization scheme output Model output detailed optimal operational parameters trajectories that corresponds to the objective stated,
+*thus providing guidance for the adjustment of operational parameters.
+
+*Supervisors: Dr A.J. ISAFIADE, A/Prof A. MAINZA
+*Y. ILUNGA
+SETS   i  Main Elements in the Converter Feed as measured by the XRF Machine
+       /  Cu
+          Ni
+          Co
+          Fe
+          O
+          S
+          N
+          C
+          H
+          SiO2
+          Al2O3
+          CaO
+          MgO
+          Cr2O3
+          H2O      /
+
+
+       f  number of finite elements              /1*100/
+       c  number of internal collocation points  /1*3/
+       m  Individual  chemical species as present in the converter's output
+       / Cu2S
+         Cu2O
+         Ni2S
+         NiO
+         CoS
+         CoO
+         FeS
+         FeO
+         Fe3O4
+         H2O
+         Ni2
+         SiO2
+         CaO
+         MgO
+         Al2O3
+         Cr2O3
+         SO2
+         CO2
+         O2    /
+
+
+       Alias(c,k);
+       Alias(m,p);
+
+*=================================================================================================================================================================================================
+SCALAR
+
+
+        Heatloss            Total furnace wall heat loss          /48668/
+        MattecarrierAir     Air used to move matte from storage to furnace. Fixed at  /3861/
+        CoalcarrierAir      Air used to move Coal from storage to furnace. Fixed at  /643/
+        Copperprice         Price of Copper in $ per kg         /6/
+        Nickelprice         Price of Nickel in $ per kg         /6/
+        Cobaltprice         Price of Cobalt in $ per kg         /6/
+        SO2price            Price of Sulfur in $ per kg for the production of sulfuric acid     /0.1/
+        Fluxprice           Price of Silica in $ per kg                         /1.5/
+*        Irongrd             Desired grade in matte      /2.78/
+*        Nickelgrd           equivalent nickel grade in  slag
+        Coalprice           Price of Coal in $ per kg                         /1.3/
+        Airprice            Price of Air in $ per Kg                         /1/
+        indoxygenprice      Price of Industrial oxygen in $ per kg           /3/
+        Concentrateprice    Price of Acquiring concentrate feed in $ per kg   /1.5/
+        Operatingcost       Converter Operating cost in $ per kg of concentrate treated    /0.085/
+        time    Operation time (hours)                         /10/
+*        time    Operation time (hours)                         /6/
+        Tinit   Initial Furnace temperature (Kelvin)         /1598/
+        Ti      Initial temperature of feeding material(Kelvin)       /298/
+*        Feedconc Concentrate Feed flowrate in kg per hour    /35000/
+*        nfe     Number of finite elements            /15/
+        nfe     Number of finite elements            /100/
+        ncp     Number of collocation points         /3/
+        point                                        /0/
+
+        ff,
+        cc,
+        point ;
+
+$ontext
+*=============================FEED1================================================================================================================================================================
+PARAMETER   inletconc(i) Initial compositions of concentrates or matte compositions
+
+        / Cu      0.0938
+          Ni      0.1544
+          Co      0.0043
+          Fe      0.3961
+          O       0
+          S       0.2801
+          N       0
+          C       0
+          H       0
+          SiO2    0.0445
+          Al2O3   0.0064
+          CaO     0.0016
+          MgO     0.0025
+          Cr2O3   0.0163
+          H2O     0.0000      /;
+$offtext
+$ontext
+*==============================FEED2==============================================================================================================================================================
+PARAMETER   inletconc(i) Initial compositions of concentrates or matte compositions
+
+        / Cu      0.0804
+          Ni      0.1365
+          Co      0.0047
+          Fe      0.3480
+          O       0
+          S       0.2445
+          N       0
+          C       0
+          H       0
+          SiO2    0.1407
+          Al2O3   0.0135
+          CaO     0.0081
+          MgO     0.0047
+          Cr2O3   0.0189
+          H2O     0      /;
+$offtext
+
+$ontext
+*==============================FEED2==============================================================================================================================================================
+PARAMETER   inletconc(i) Initial compositions of concentrates or matte compositions
+
+        / Cu      0.0812
+          Ni      0.1320
+          Co      0.0033
+          Fe      0.3622
+          O       0
+          S       0.2461
+          N       0
+          C       0
+          H       0
+          SiO2    0.0910
+          Al2O3   0.0073
+          CaO     0.0013
+          MgO     0.0021
+          Cr2O3   0.0120
+          H2O     0.0615     /;
+$offtext
+$ontext
+*===============================FEED3============================================================================================================================================================
+PARAMETER   inletconc(i) Initial compositions of concentrates or matte compositions
+
+        / Cu      0.0873
+          Ni      0.1438
+          Co      0.0040
+          Fe      0.3688
+          O       0
+          S       0.2608
+          N       0
+          C       0
+          H       0
+          SiO2    0.0414
+          Al2O3   0.0060
+          CaO     0.0015
+          MgO     0.0023
+          Cr2O3   0.0151
+          H2O     0.0690      /;
+$offtext
+
+*$ontext
+*==============================FEED4======================================================================================================================================================
+
+PARAMETER   inletconc(i) Initial compositions of concentrates or matte compositions
+
+        / Cu      0.0838
+          Ni      0.1440
+          Co      0.0042
+          Fe      0.3750
+          O       0
+          S       0.2584
+          N       0
+          C       0
+          H       0
+          SiO2    0.0952
+          Al2O3   0.0120
+          CaO     0.0065
+          MgO     0.0035
+          Cr2O3   0.0174
+          H2O     0      /;
+*$offtext
+
+*============================================================PARAMETERS===============================================================================================================================================
+
+
+PARAMETER   inletflux(i) Silica Flux compositions
+
+        / Cu      0
+          Ni      0
+          Co      0
+          Fe      0
+          O       0
+          S       0
+          N       0
+          C       0
+          H       0
+          SiO2    0.98
+          Al2O3   0.02
+          CaO     0
+          MgO     0
+          Cr2O3   0
+          H2O     0      /;
+
+
+PARAMETER   inlet2coal(i)  compositions of Coal
+
+        / Cu      0
+          Ni      0
+          Co      0
+          Fe      0
+          O       0.0527
+          S       0.016
+          N       0.015
+          C       0.7086
+          H       0.035
+          SiO2    0.0915
+          Al2O3   0.062
+          CaO     0.0051
+          MgO     0.0051
+          Cr2O3   0
+          H2O     0      /;
+
+PARAMETER   inlet3diesel(i)  compositions of diesel
+
+        / Cu      0
+          Ni      0
+          Co      0
+          Fe      0
+          O       0
+          S       0
+          N       0
+          C       0.86
+          H       0.14
+          SiO2    0
+          Al2O3   0
+          CaO     0
+          MgO     0
+          Cr2O3   0
+          H2O     0    /;
+
+PARAMETER   inlet4Air(i)  compositions of Air by mass
+
+        / Cu      0
+          Ni      0
+          Co      0
+          Fe      0
+          O       0.233
+          S       0
+          N       0.767
+          C       0
+          H       0
+          SiO2    0
+          Al2O3   0
+          CaO     0
+          MgO     0
+          Cr2O3   0
+          H2O     0     /;
+
+
+PARAMETER   inlet5indoxygen(i) compositions of industrial oxygen by mass
+
+        / Cu      0
+          Ni      0
+          Co      0
+          Fe      0
+          O       0.99
+          S       0
+          N       0.01
+          C       0
+          H       0
+          SiO2    0
+          Al2O3   0
+          CaO     0
+          MgO     0
+          Cr2O3   0
+          H2O     0      /;
+
+
+PARAMETER   Molm(m)  Molar mass of chemical species present in the system
+
+  / Cu2S       159.16
+    Cu2O       143.09
+    Ni2S       240.1
+    NiO        74.69
+    CoS        60.075
+    CoO        74.93
+    FeS        87.91
+    FeO        71.84
+    Fe3O4      231.53
+    H2O        18
+    Ni2        28
+    SiO2       60.08
+    CaO        56.07
+    MgO        40.30
+    Al2O3      101.96
+    Cr2O3      151.99
+    SO2        64.06
+    CO2        44.01
+    O2         32.00     /;
+
+*====================================================================================================================================================================================================
+VARIABLES
+Ax
+Z ;
+NonNegative Variables
+OUT(i,f,c)     "Elemental Products "
+EXT(m,f,c)     "Species Products"
+
+Pf(f,c)
+T(f,c)         "Converter Temperature"
+Feedflux(f)    Feed flowrate of Silica flux
+Feedcoal(f)    Feed flowrate of Coal
+Feedconc(f)
+TotalAir(f)      'Total Mass of Air fed to the converter'
+FeedAir(f)       'Mass of Air for enrichment stream'
+Feedindoxygen(f) 'Mass of industrial oxygen for enrichment stream'
+Cp(m,f,c)      'Heat Capacity of individual species'
+OUT0(i,f)      Initial amount feeding the converter
+tt(f,c)        " Time"
+V(f,c)         Volume of matte+slag
+FeSiratio(f,c)  Ratio of Iron to Silica in the slag
+Irongrd(f,c)
+Nickelgrd(f,c)
+
+MMatte(f,c)    Mass of matte in Kg
+MOffgas(f,c)   Mass of off gas products in kg
+MSlag(f,c)     Mass of slag in kg
+
+*Xffgas(m,f,c)
+
+OxyMatteRatio(f)   Ratio of industrial oxygen flowrate to feeding Concentrate in kg of ind oxygen per tonne of Matte fed
+FluxMatteRatio(f)  Ratio of Silica flux flowrate to feeding Concentrate in kg of Silica per tonne of Matte fed
+OxyFuelRatio(f)    Ratio of Industrial oxygen flowrate to fuel coal flowrate in kg of Ind oxygen per tonne of coal fed
+LanceAirMatteRatio(f)
+
+    ;
+Table a(c,c) First order derivatives collocation matrix
+               1                 2                  3
+     1  0.19681547722366  0.39442431473909  0.37640306270047
+     2 -0.06553542585020  0.29207341166523  0.51248582618842
+     3  0.02377097434822 -0.04154875212600  0.11111111111111        ;
+
+      Parameter
+              slopeconc
+              feedconcguess(f)
+              ttguess(f,c)
+              Hfe(f)         ;
+
+*--------------------------Initial guess of the decision variables AND chosen direction---------------------------------------------------------------------------------------------------------------
+
+      point = 0;
+*      slopeconc = 5000/(nfe*ncp);
+
+      for (ff = 1 to nfe,
+          for (cc = 1 to ncp,
+               point = point+1;
+               ttguess(f,c) = time*point;
+*              feedconcguess(f) = slopeconc*point +1000;
+          );
+      );
+      Hfe(f) = 1/nfe ;
+*======================================================================================================================================================================================================
+* parameter Nickelgrd ;
+*  Nickelgrd = 4.917 * Irongrd**(-0.4273) ;
+VARIABLES
+          dummy          Dummy variable
+          Tdot(f,c)      Accumulation of temperature
+*          z              Profit (Product value - Feed Cost - Energy cost)   $
+          Hout(m,f,c)    Enthalpy of products
+          Hin(m)         Enthalpy of feed reagents
+          OUTdot(i,f,c)  Accumulation of main elements
+          MatteFall
+          SlagFall
+          T0(f)          Initial converter Temperature in Kelvin
+          tt0(f)         Initial time
+*          OUTdot(i,f,c)  " Mass accumulation"
+          Henth(m,f,c)   " Enthalpy"
+          HCUM(f,c)      " Energy accumulation"
+          Hreact(f,c)         " Enthalpy reactants"
+          Hproduct(f,c)  " Enthalpy products"
+
+*          Xmatte(f,c)
+          XCumte(f,c)
+*          XNimte(f,c)
+*          XFemte(f,c)
+          XSmte(f,c)
+
+*          XCuslg(f,c)
+*          XNislg(f,c)
+          XFeslg(f,c)
+          XSislg(f,c)
+*          Vtot(f,c)
+          XSO2ffgas(f,c)       ;
+*          XCO2ffgas(f,c)
+*          XNi2ffgas(f,c)
+*          XO2ffgas(f,c)    ;
+
+*==========================================================================================================================================================================================
+
+EQUATIONS
+
+*============================================COLLOCATION IMPLEMENTATION====================================================================================================================
+           FECOLEXT1(f,c)     "Finite element collocation of Cu products species"
+           FECOLEXT2(f,c)     "Finite element collocation of Ni products species"
+           FECOLEXT3(f,c)     "Finite element collocation of Co products species"
+           FECOLEXT4(f,c)     "Finite element collocation of Fe products species"
+           FECOLEXT5(f,c)     "Finite element collocation of O products species"
+           FECOLEXT6(f,c)     "Finite element collocation of S products species"
+           FECOLEXT7(f,c)     "Finite element collocation of N products species"
+           FECOLEXT8(f,c)     "Finite element collocation of C products species"
+           FECOLEXT9(f,c)     "Finite element collocation of H products species"
+           FECOLEXT10(f,c)    "Finite element collocation of SiO2 products species"
+           FECOLEXT11(f,c)    "Finite element collocation of Al2O3 products species"
+           FECOLEXT12(f,c)    "Finite element collocation of CaO products species"
+           FECOLEXT13(f,c)    "Finite element collocation of MgO products species"
+           FECOLEXT14(f,c)    "Finite element collocation of Cr2O3 products species"
+
+
+           FECOLT(f,c)         "Finite element collocation of temperature"
+           FECOLtt(f,c)        "Finite element collocation of time"
+
+           CONEXT1(f)
+           CONEXT2(f)
+           CONEXT3(f)
+           CONEXT4(f)
+           CONEXT5(f)
+           CONEXT6(f)
+           CONEXT7(f)
+           CONEXT8(f)
+           CONEXT9(f)
+           CONEXT10(f)
+           CONEXT11(f)
+           CONEXT12(f)
+           CONEXT13(f)
+           CONEXT14(f)
+
+
+           CONT(f)
+           CONtt(f)
+
+*=================================================================Differential Algebraic system=========================================================================================================
+
+           EQU1(f,c)        Mass balance Cu
+           EQU2(f,c)
+           EQU3(f,c)
+           EQU4(f,c)
+           EQU5(f,c)
+           EQU6(f,c)
+           EQU7(f,c)
+           EQU8(f,c)
+           EQU9(f,c)
+           EQU10(f,c)
+           EQU11(f,c)
+           EQU12(f,c)
+           EQU13(f,c)
+           EQU14(f,c)
+           EQU15(f,c)       Slag equality equation with target of 1.8 Fe per SiO2
+           EQU16(f,c)       Slag Iron distribution 80% FeO and 20% Fe2O3 from plant data
+           EQU17(f,c)       Matte Iron grade equation set to 2.78%
+           EQU18(f,c)       Slag Nickel equation determined by level of Matte Iron 3.18%
+           EQU19(f,c)       Copper distribution between matte and slag 85% Cu2S and 15% CuO from plant data
+           EQU20(f,c)       Cobalt distribution between matte and slag 26% CoS  and 74% CoO from plant data
+           EQU21(f)         Blast Oxygen enrichment
+           EQU22(f,c)       Volume of matte and slag
+*           EQU23(f,c)
+
+**=============================================================THERMODYNAMIC PROPERTIES==========================================================================================================
+           EQUCP1(f,c) "heat capacity of products",
+           EQUCP2(f,c)
+           EQUCP3(f,c)
+           EQUCP4(f,c)
+           EQUCP5(f,c)
+           EQUCP6(f,c)
+           EQUCP7(f,c)
+           EQUCP8(f,c)
+           EQUCP9(f,c)
+           EQUCP10(f,c)
+           EQUCP11(f,c)
+           EQUCP12(f,c)
+           EQUCP13(f,c)
+           EQUCP14(f,c)
+           EQUCP15(f,c)
+           EQUCP16(f,c)
+           EQUCP17(f,c)
+           EQUCP18(f,c)
+           EQUCP19(f,c)
+
+           EQUH1(f,c) "heat capacity of products",
+           EQUH2(f,c)
+           EQUH3(f,c)
+           EQUH4(f,c)
+           EQUH5(f,c)
+           EQUH6(f,c)
+           EQUH7(f,c)
+           EQUH8(f,c)
+           EQUH9(f,c)
+           EQUH10(f,c)
+           EQUH11(f,c)
+           EQUH12(f,c)
+           EQUH13(f,c)
+           EQUH14(f,c)
+           EQUH15(f,c)
+           EQUH16(f,c)
+           EQUH17(f,c)
+           EQUH18(f,c)
+           EQUH19(f,c)
+
+           EQUH1in       Heat capacity inlet
+           EQUH2in
+           EQUH3in
+           EQUH4in
+           EQUH5in
+           EQUH6in
+           EQUH7in
+           EQUH8in
+           EQUH9in
+           EQUH10in
+           EQUH11in
+           EQUH12in
+           EQUH13in
+           EQUH14in
+           EQUH15in
+           EQUH16in
+           EQUH17in
+           EQUH18in
+           EQUH19in
+
+
+           EQUAIR(f)
+*======================================================= Heat Balance =====================================================================================================================
+           EQUENTHINe(f,c)
+
+           EQUENTHBAL(f,c)
+
+*=======================================================Initial amounts======================================================================================================================
+           EQUIN1(i,f)            Initial feed
+           EQUIN(i,c)             Feed
+           EQUTEMP
+
+*========================================================Output Mass and composition==============================================================================================================================
+           EQURATIO(f)
+           EQURATIO1(f)
+           EQURATIO2(f)
+           EQURATIO3(f)
+$ontext
+
+           EQXNiMATTE(f,c)        Nickel Mass Composition in Matte
+           EQXFeMATTE(f,c)        Iron Mass Composition in Matte
+
+
+           EQXCuSLAG(f,c)         Copper Mass Composition in Slag
+           EQXNiSLAG(f,c)         Nickel Mass Composition in Slag
+
+
+
+
+
+           EQXNi2FFGAS(f,c)       N2 Mass Composition in Offgas
+           EQXCO2FFGAS(f,c)       CO2 Mass Composition in Offgas
+           EQXO2FFGAS(f,c)        O2 Mass Composition in Offgas
+$offtext
+*           EQSLAGFALL
+*           EQMATTEFALL
+*           EQXSO2FFGAS(f,c)       SO2 Mass Composition in Offgas
+*           EQXCuMATTE(f,c)        Copper Mass Composition in Matte
+*           EQXSMATTE(f,c)         Sulphur Mass Composition in Matte
+*           EQXSiSLAG(f,c)         Silica Mass Composition in Slag
+*           EQXFeSLAG(f,c)         Iron Mass Composition in Slag
+
+           EQMATTE(f,c)         Total Mass of output Matte
+           EQSLAG(f,c)          Total Mass of output Slag
+
+           EQFFGAS(f,c)         Total Mass of output Offgas
+
+           EQUsum(f,c)
+*           EQUsum2(f,c)
+           EQUTIME              Time
+           OBJ                  Profit
+*           EQZ(f,c)
+                                                   ;
+*==================================================================================================================================================================================================================
+**-----------------------------------------Collocation Implemntation-----------------------------------------------------------------------
+**---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+FECOLEXT1(f,c)$(ord(f) le nfe).. OUT('Cu',f,c) =e= OUT0('Cu',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('Cu',f,c))  ;
+FECOLEXT2(f,c)$(ord(f) le nfe).. OUT('Ni',f,c) =e= OUT0('Ni',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('Ni',f,c))  ;
+FECOLEXT3(f,c)$(ord(f) le nfe).. OUT('Co',f,c) =e= OUT0('Co',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('Co',f,c))  ;
+FECOLEXT4(f,c)$(ord(f) le nfe).. OUT('Fe',f,c) =e= OUT0('Fe',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('Fe',f,c))  ;
+FECOLEXT5(f,c)$(ord(f) le nfe).. OUT('O',f,c) =e= OUT0('O',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('O',f,c))  ;
+FECOLEXT6(f,c)$(ord(f) le nfe).. OUT('S',f,c) =e= OUT0('S',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('S',f,c))  ;
+FECOLEXT7(f,c)$(ord(f) le nfe).. OUT('N',f,c) =e= OUT0('N',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('N',f,c))  ;
+FECOLEXT8(f,c)$(ord(f) le nfe).. OUT('C',f,c) =e= OUT0('C',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('C',f,c))  ;
+FECOLEXT9(f,c)$(ord(f) le nfe).. OUT('H',f,c) =e= OUT0('H',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('H',f,c))  ;
+FECOLEXT10(f,c)$(ord(f) le nfe).. OUT('SiO2',f,c) =e= OUT0('SiO2',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('SiO2',f,c))  ;
+FECOLEXT11(f,c)$(ord(f) le nfe).. OUT('Al2O3',f,c) =e= OUT0('Al2O3',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('Al2O3',f,c))  ;
+FECOLEXT12(f,c)$(ord(f) le nfe).. OUT('CaO',f,c) =e= OUT0('CaO',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('CaO',f,c))  ;
+FECOLEXT13(f,c)$(ord(f) le nfe).. OUT('MgO',f,c) =e= OUT0('MgO',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('MgO',f,c))  ;
+FECOLEXT14(f,c)$(ord(f) le nfe).. OUT('Cr2O3',f,c) =e= OUT0('Cr2O3',f) + time*Hfe(f)*sum(k,a(k,c)*OUTdot('Cr2O3',f,c))  ;
+
+FECOLT(f,c)$(ord(f) le nfe).. T(f,c) =e= T0(f) + time*Hfe(f)*sum(k,Tdot(f,c)*a(k,c)) ;
+FECOLtt(f,c)$(ord(f) le nfe).. tt(f,c) =e= tt0(f) + time*Hfe(f)*sum(k,a(k,c));
+
+CONEXT1(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('Cu',f) =e= OUT0('Cu',f-1) + time*Hfe(f-1)*sum(c, OUTdot('Cu',f-1,c)*a(c,'3')) ;
+CONEXT2(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('Ni',f) =e= OUT0('Ni',f-1) + time*Hfe(f-1)*sum(c, OUTdot('Ni',f-1,c)*a(c,'3')) ;
+CONEXT3(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('Co',f) =e= OUT0('Co',f-1) + time*Hfe(f-1)*sum(c, OUTdot('Co',f-1,c)*a(c,'3')) ;
+CONEXT4(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('Fe',f) =e= OUT0('Fe',f-1) + time*Hfe(f-1)*sum(c, OUTdot('Fe',f-1,c)*a(c,'3')) ;
+CONEXT5(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('O',f) =e= OUT0('O',f-1) + time*Hfe(f-1)*sum(c, OUTdot('O',f-1,c)*a(c,'3')) ;
+CONEXT6(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('S',f) =e= OUT0('S',f-1) + time*Hfe(f-1)*sum(c, OUTdot('S',f-1,c)*a(c,'3')) ;
+CONEXT7(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('N',f) =e= OUT0('N',f-1) + time*Hfe(f-1)*sum(c, OUTdot('N',f-1,c)*a(c,'3')) ;
+CONEXT8(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('C',f) =e= OUT0('C',f-1) + time*Hfe(f-1)*sum(c, OUTdot('C',f-1,c)*a(c,'3')) ;
+CONEXT9(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('H',f) =e= OUT0('H',f-1) + time*Hfe(f-1)*sum(c, OUTdot('H',f-1,c)*a(c,'3')) ;
+CONEXT10(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('SiO2',f) =e= OUT0('SiO2',f-1) + time*Hfe(f-1)*sum(c, OUTdot('SiO2',f-1,c)*a(c,'3')) ;
+CONEXT11(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('Al2O3',f) =e= OUT0('Al2O3',f-1) + time*Hfe(f-1)*sum(c, OUTdot('Al2O3',f-1,c)*a(c,'3')) ;
+CONEXT12(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('CaO',f) =e= OUT0('CaO',f-1) + time*Hfe(f-1)*sum(c, OUTdot('CaO',f-1,c)*a(c,'3')) ;
+CONEXT13(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('MgO',f) =e= OUT0('MgO',f-1) + time*Hfe(f-1)*sum(c, OUTdot('MgO',f-1,c)*a(c,'3')) ;
+CONEXT14(f)$(ord(f) gt 1 and ord(f) le nfe).. OUT0('Cr2O3',f) =e= OUT0('Cr2O3',f-1) + time*Hfe(f-1)*sum(c, OUTdot('Cr2O3',f-1,c)*a(c,'3')) ;
+
+CONT(f)$(ord(f) gt 1 and ord(f) le nfe).. T0(f) =e= T0(f-1) + time*Hfe(f-1)*sum(c, Tdot(f-1,c)*a(c,'3')) ;
+CONtt(f)$(ord(f) gt 1 and ord(f) le nfe).. tt0(f) =e= tt0(f-1) + time*Hfe(f-1)*sum(c, a(c,'3')) ;
+*===================================================================================================================================================================================================
+*-------------------------------------------------DAE System--------------------------------------------------------------------------------------------------------
+**-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+EQU1(f,c)$(ord(f) le nfe).. OUTdot('Cu',f,c) =e=  OUT0('Cu',f) - (0.8*EXT('Cu2S',f,c)+ 0.89*EXT('Cu2O',f,c)) ;
+EQU2(f,c)$(ord(f) le nfe).. OUTdot('Ni',f,c) =e=  OUT0('Ni',f) - (0.73*EXT('Ni2S',f,c) + 0.79*EXT('NiO',f,c)) ;
+EQU3(f,c)$(ord(f) le nfe).. OUTdot('Co',f,c) =e=  OUT0('Co',f) - (0.65*EXT('CoS',f,c) + 0.79*EXT('CoO',f,c)) ;
+EQU4(f,c)$(ord(f) le nfe).. OUTdot('Fe',f,c) =e=  OUT0('Fe',f) - ( 0.64*EXT('FeS',f,c) + 0.78*EXT('FeO',f,c) + 0.72*EXT('Fe3O4',f,c) ) ;
+EQU5(f,c)$(ord(f) le nfe).. OUTdot('O',f,c) =e=  OUT0('O',f) - (0.22*EXT('FeO',f,c) + 0.28*EXT('Fe3O4',f,c) + 0.21*EXT('NiO',f,c) + 0.11*EXT('Cu2O',f,c) + 0.21*EXT('CoO',f,c) + 0.5*EXT('SO2',f,c) + 0.73*EXT('CO2',f,c) + 0.89*EXT('H2O',f,c) + 2*EXT('O2',f,c) ) ;
+EQU6(f,c)$(ord(f) le nfe).. OUTdot('S',f,c) =e=  OUT0('S',f) - (0.36*EXT('FeS',f,c) + 0.27*EXT('Ni2S',f,c) + 0.2*EXT('Cu2S',f,c) + 0.35*EXT('CoS',f,c) + 0.5*EXT('SO2',f,c) ) ;
+EQU7(f,c)$(ord(f) le nfe).. OUTdot('N',f,c) =e=  OUT0('N',f) - (2*EXT('Ni2',f,c) ) ;
+EQU8(f,c)$(ord(f) le nfe).. OUTdot('C',f,c) =e=  OUT0('C',f) - (0.27*EXT('CO2',f,c) ) ;
+EQU9(f,c)$(ord(f) le nfe).. OUTdot('H',f,c) =e=  OUT0('H',f) - (0.11*EXT('H2O',f,c) ) ;
+EQU10(f,c)$(ord(f) le nfe).. OUTdot('SiO2',f,c) =e=  OUT0('SiO2',f) - (EXT('SiO2',f,c)) ;
+EQU11(f,c)$(ord(f) le nfe).. OUTdot('Al2O3',f,c) =e=  OUT0('Al2O3',f) - (EXT('Al2O3',f,c)) ;
+EQU12(f,c)$(ord(f) le nfe).. OUTdot('CaO',f,c) =e=  OUT0('CaO',f) - (EXT('CaO',f,c)) ;
+EQU13(f,c)$(ord(f) le nfe).. OUTdot('MgO',f,c) =e=  OUT0('MgO',f) - (EXT('MgO',f,c)) ;
+EQU14(f,c)$(ord(f) le nfe).. OUTdot('Cr2O3',f,c) =e=  OUT0('Cr2O3',f) - ( EXT('Cr2O3',f,c)) ;
+
+EQU15(f,c).. (0.78*EXT('FeO',f,c) + 0.72*EXT('Fe3O4',f,c)) =e= FeSiratio(f,c)*EXT('SiO2',f,c) ;
+EQU16(f,c).. 1.0833*EXT('FeO',f,c) =e= 4.0*EXT('Fe3O4',f,c)  ;
+EQU17(f,c).. (Irongrd(f,c)/100)*(EXT('Ni2S',f,c)+ EXT('Cu2S',f,c) + EXT('FeS',f,c) + EXT('CoS',f,c)) =e= 0.64*EXT('FeS',f,c);
+EQUsum(f,c).. ((Nickelgrd(f,c)/4.917)) - (Irongrd(f,c))**(0.4273)=e= 0 ;
+
+EQU18(f,c).. (Nickelgrd(f,c)/100)*(EXT('SiO2',f,c) + EXT('FeO',f,c) + EXT('Fe3O4',f,c) + EXT('Cr2O3',f,c) + EXT('MgO',f,c) + EXT('CaO',f,c) + EXT('Al2O3',f,c) + EXT('NiO',f,c) + EXT('Cu2O',f,c) + EXT('CoO',f,c))=e= 0.79*EXT('NiO',f,c) ;
+EQU19(f,c)$(ord(f) le nfe).. 5.667*EXT('Cu2O',f,c) =e= 0.8989*EXT('Cu2S',f,c) ;
+EQU20(f,c)$(ord(f) le nfe).. 0.3514*EXT('CoO',f,c) =e= 0.823*EXT('CoS',f,c) ;
+*//At 40% //
+
+EQU21(f)$(ord(f) le nfe).. -0.4612*FeedAir(f) + 1.2922*Feedindoxygen(f) =e= 0;
+*EQU21(f)$(ord(f) le nfe).. -0.29163*FeedAir(f) + 2.0149*Feedindoxygen(f) =e= 0 ;
+*// At 30% //
+*EQU21(f)$(ord(f) le nfe).. -0.5631*FeedAir(f) + 0.8585*Feedindoxygen(f) =e= 0 ;
+*// At 50%  //
+EQU22(f,c)$(ord(f) le nfe).. ((EXT('SiO2',f,c) + EXT('FeO',f,c) + EXT('Fe3O4',f,c) + EXT('Cr2O3',f,c) + EXT('MgO',f,c) + EXT('CaO',f,c) + EXT('Al2O3',f,c) + EXT('NiO',f,c) + EXT('Cu2O',f,c) + EXT('CoO',f,c))/(-0.3*T(f,c) + 3146)) + ((EXT('Ni2S',f,c)+ EXT('Cu2S',f,c) + EXT('FeS',f,c) + EXT('CoS',f,c))/(4487.99 - 0.4645*(T(f,c) - 1000))) =e= V(f,c) ;
+
+*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*===========================================Mass Matte,slag,Offgas and compositions===============================================================================================================
+*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+EQMATTE(f,c)$(ord(f) le nfe)..
+MMatte(f,c) =e= EXT('Ni2S',f,c) + EXT('Cu2S',f,c) + EXT('FeS',f,c) + EXT('CoS',f,c) ;
+
+EQSLAG(f,c)$(ord(f) le nfe)..
+MSlag(f,c) =e= EXT('SiO2',f,c) + EXT('FeO',f,c) + EXT('Fe3O4',f,c) + EXT('Cr2O3',f,c) + EXT('MgO',f,c) + EXT('CaO',f,c) + EXT('Al2O3',f,c) + EXT('NiO',f,c) + EXT('Cu2O',f,c) + EXT('CoO',f,c) ;
+
+EQFFGAS(f,c)$(ord(f) le nfe)..
+MOffgas(f,c) - ( EXT('O2',f,c) + EXT('Ni2',f,c) + EXT('CO2',f,c) + EXT('SO2',f,c) + EXT('H2O',f,c)) =e= 0 ;
+
+$ontext
+
+
+
+EQXNiMATTE(f,c)..
+MMatte(f,c)*XNimte(f,c) =e= EXT('Ni2S',f,c)*0.78 ;
+
+EQXFeMATTE(f,c)..
+MMatte(f,c)*XFemte(f,c) =e= EXT('FeS',f,c)*0.65 ;
+
+
+
+EQXCuSLAG(f,c)..
+MSlag(f,c)*XCuslg(f,c) =e=  EXT('Cu2O',f,c)*0.89 ;
+
+EQXNiSLAG(f,c)..
+MSlag(f,c)*XNislg(f,c) =e=  EXT('NiO',f,c)*0.79 ;
+
+
+
+*EQXSSLAG(f,c)..
+*MSlag(f,c)*XSslg(f,c) =e=  EXT('Cu2O',f,c)*0.89 ;
+
+
+
+
+
+EQXNi2FFGAS(f,c)$(ord(f) le nfe)..
+MOffgas(f,c)*XNi2ffgas(f,c) =e= EXT('Ni2',f,c) ;
+
+EQXO2FFGAS(f,c)$(ord(f) le nfe)..
+MOffgas(f,c)*XO2ffgas(f,c) =e= EXT('O2',f,c) ;
+
+EQXCO2FFGAS(f,c)$(ord(f) le nfe)..
+MOffgas(f,c)*XCO2ffgas(f,c) =e= EXT('CO2',f,c) ;
+$offtext
+*EQXSO2FFGAS(f,c)$(ord(f) le nfe)..
+*MOffgas(f,c)*XSO2ffgas(f,c) =e= EXT('SO2',f,c) ;
+
+*EQXCuMATTE(f,c)..
+*MMatte(f,c)*XCumte(f,c) =e= EXT('Cu2S',f,c)*0.80 ;
+
+*EQXSiSLAG(f,c)..
+*MSlag(f,c)*XSislg(f,c) =e=  EXT('SiO2',f,c) ;
+
+*EQXFeSLAG(f,c)..
+*MSlag(f,c)*XFeslg(f,c) =e=  EXT('FeO',f,c)*0.78 +  EXT('Fe3O4',f,c)*0.72 ;
+
+*EQXSMATTE(f,c)..
+*MMatte(f,c)*XSmte(f,c) =e= 0.22*EXT('Ni2S',f,c) + 0.2*EXT('Cu2S',f,c) + 0.35*EXT('FeS',f,c) + 0.35*EXT('CoS',f,c) ;
+
+*EQSLAGFALL..
+*sum((f,c), MSlag(f,c)*tt(f,c)) =e= SlagFall*(sum((f,c),feedconc(f)*tt(f,c))) ;
+
+*EQMATTEFALL..
+*sum((f,c), MMatte(f,c)*tt(f,c)) =e= MatteFall*(sum((f,c),feedconc(f)*tt(f,c))) ;
+
+                                                                                    ;
+*==============================================------------------------===============================================================================================
+*==============================================THERMODYNAMIC PROPERTIES===============================================================================================
+*==========================================================================================================================================================================
+
+**---------------------------------------Heat capacites of products---------------------------------------------------------------------------------------------------------------
+**--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+EQUCP1(f,c)$(ord(f) le nfe).. Cp('Cu2S',f,c) =e=  4.1868*21.43/(159*1000)   ;
+EQUCP2(f,c)$(ord(f) le nfe)..
+Cp('Cu2O',f,c) =e=  4.1868*23.880/(143*1000) ;
+EQUCP3(f,c)$(ord(f) le nfe)..
+Cp('Ni2S',f,c) =e= 4.1868*45.840/(240.1*1000);
+EQUCP4(f,c)$(ord(f) le nfe)..
+Cp('NiO',f,c) =e=  4.1868*13/(74.71*1000) ;
+EQUCP5(f,c)$(ord(f) le nfe)..
+Cp('CoS',f,c) =e=  4.1868*(10.600 + 0.00251*T(f,c))/(90.93*1000);
+EQUCP6(f,c)$(ord(f) le nfe)..
+Cp('CoO',f,c) =e=  4.1868*14.5/(74.93*1000) ;
+EQUCP7(f,c)$(ord(f) le nfe)..
+Cp('FeS',f,c) =e=  4.1868*14.95/(87.85*1000) ;
+EQUCP8(f,c)$(ord(f) le nfe)..
+Cp('FeO',f,c) =e=  4.1868*16.3/(71.85*1000);
+EQUCP9(f,c)$(ord(f) le nfe)..
+Cp('Fe3O4',f,c) =e=  4.1868*51/(231.55*1000);
+EQUCP10(f,c)$(ord(f) le nfe)..
+Cp('H2O',f,c) =e= 4.1868*(5.227 + 0.005392*T(f,c))/(18*1000) ;
+EQUCP11(f,c)$(ord(f) le nfe)..
+Cp('Ni2',f,c) =e= 4.1868*(5.39 + 0.003157*T(f,c))/(28*1000) ;
+EQUCP12(f,c)$(ord(f) le nfe)..
+Cp('SiO2',f,c) =e= 4.1868*20.5/(60*1000) ;
+EQUCP13(f,c)$(ord(f) le nfe)..
+Cp('CaO',f,c) =e= 4.1868*15/(56*1000);
+EQUCP14(f,c)$(ord(f) le nfe)..
+Cp('MgO',f,c) =e= 4.1868*16/(40*1000);
+EQUCP15(f,c)$(ord(f) le nfe)..
+Cp('Al2O3',f,c) =e= 4.1868*34.623/(102*1000);
+EQUCP16(f,c)$(ord(f) le nfe)..
+Cp('Cr2O3',f,c) =e= 4.1868*37.5/(168*1000);
+EQUCP17(f,c)$(ord(f) le nfe)..
+*Cp('SO2',f,c) =e= 4.1868*(13.093 + 0.000801*T(f,c) - 591400*T(f,c))/(64*1000);
+Cp('SO2',f,c) =e= 4.1868*(13.093 + 0.000801*T(f,c))/(64*1000);
+*Cp('SO2',f,c) =e= 4.1868*(13.093)/(64*1000);
+EQUCP18(f,c)$(ord(f) le nfe)..
+Cp('CO2',f,c) =e= 4.1868*(12.7 + 0.001152*T(f,c))/(44*1000);
+EQUCP19(f,c)$(ord(f) le nfe)..
+Cp('O2',f,c) =e= 4.1868*(7.412 + 0.001*T(f,c))/(32*1000) ;
+
+$ontext
+**---------------------------------------Heat capacites of feed------------------------------------------------------------------------------------------------------------------
+**----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+EQUCP1in(f,c)$(ord(f) le nfe).. Cp('Cu2S',f,c) =e=  20.9*(T(f,c)-Ti) + 0.0312*(0.5)*sqrt(T(f,c)) ;
+EQUCP2in(f,c)$(ord(f) le nfe)..
+Cp('Cu2O',f,c) =e=  10.87*T(f,c) + 0.003576*0.5*sqrt(T(f,c)) - (150600/T(f,c)) ;
+EQUCP3in(f,c)$(ord(f) le nfe)..
+Cp('Ni2S',f,c) =e= 9.25*T(f,c) +  0.00640*0.5*sqrt(T(f,c));
+EQUCP4in(f,c)$(ord(f) le nfe)..
+Cp('NiO',f,c) =e=  11.3*T(f,c) +  0.00215*0.5*sqrt(T(f,c));
+EQUCP5in(f,c)$(ord(f) le nfe)..
+Cp('CoS',f,c) =e=  10.6*T(f,c) +  0.00251*0.5*sqrt(T(f,c));
+EQUCP6in(f,c)$(ord(f) le nfe)..
+Cp('CoO',f,c) =e=  43.65*T(f,c) +  22.384*0.5*sqrt(T(f,c)) ;
+EQUCP7in(f,c)$(ord(f) le nfe)..
+Cp('FeS',f,c) =e=  12.05*T(f,c) +  0.00273*0.5*sqrt(T(f,c)) ;
+EQUCP8in(f,c)$(ord(f) le nfe)..
+Cp('FeO',f,c) =e=  12.62*T(f,c) +  0.00149*0.5*sqrt(T(f,c)) - (76200/T(f,c));
+EQUCP9in(f,c)$(ord(f) le nfe)..
+Cp('Fe3O4',f,c) =e=  41.17*T(f,c) +  0.01882*0.5*sqrt(T(f,c)) - (979500/T(f,c));
+EQUCP10in(f,c)$(ord(f) le nfe)..
+Cp('H2O',f,c) =e= 8.22*T(f,c) +   0.00015*0.5*sqrt(T(f,c)) ;
+EQUCP11in(f,c)$(ord(f) le nfe)..
+Cp('Ni2',f,c) =e= 6.50*T(f,c) +   0.00100*0.5*sqrt(T(f,c)) ;
+EQUCP12in(f,c)$(ord(f) le nfe)..
+Cp('SiO2',f,c) =e= 10.95*T(f,c) +  0.00550*0.5*sqrt(T(f,c)) ;
+EQUCP13in(f,c)$(ord(f) le nfe)..
+Cp('CaO',f,c) =e= 10.0*T(f,c) +   0.00484*0.5*sqrt(T(f,c)) - (108000/T(f,c));
+EQUCP14in(f,c)$(ord(f) le nfe)..
+Cp('MgO',f,c) =e= 10.86*T(f,c) +  0.001197*0.5*sqrt(T(f,c)) - (208700/T(f,c));
+EQUCP15in(f,c)$(ord(f) le nfe)..
+Cp('Al2O3',f,c) =e= 22.08*T(f,c) +  0.008971*0.5*sqrt(T(f,c)) - (522500/T(f,c));
+EQUCP16in(f,c)$(ord(f) le nfe)..
+Cp('Cr2O3',f,c) =e= 26.0*T(f,c) +   0.00400*0.5*sqrt(T(f,c));
+EQUCP17in(f,c)$(ord(f) le nfe)..
+Cp('SO2',f,c) =e= 7.70*T(f,c) +   0.00530*0.5*sqrt(T(f,c));
+EQUCP18(f,c)$(ord(f) le nfe)..
+Cp('CO2',f,c) =e= 10.34*T(f,c) +  0.00274*0.5*sqrt(T(f,c)) - (195500/T(f,c));
+EQUCP19in(f,c)$(ord(f) le nfe)..
+*Cp('Coal',f,c) =e= 0.711*T(f,c) +  0.00046*0.5*sqrt(T(f,c)) ;
+Cp('O2',f,c) =e= 8.27*T(f,c) +   258E-6*0.5*sqrt(T(f,c)) - (187700/T(f,c)) ;
+*EQUCP20(f,c)$(ord(f) le nfe)..
+*Cp('Air',f,c) =e= -3.57*T(f,c) +  0.153*0.5*sqrt(T(f,c));
+*EQUCP21(f,c)$(ord(f) le nfe)..
+*Cp('Oxygen',f,c) =e= 8.27*T(f,c) +   258E-6*0.5*sqrt(T(f,c)) - (187700/T(f,c)) ;
+*EQUCP22(f,c)$(ord(f) le nfe)..
+*Cp('Flux',f,c) =e= 11.0*T(f,c) +   0.0060*0.5*sqrt(T(f,c))           ;
+
+$offtext
+*==========================================================================================================================================================================================================
+*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+**----------------------------------Enthalpies of output products---------------------------------------------------------------------------------------------------------------
+
+EQUH1(f,c)$(ord(f) le nfe).. Hout('Cu2S',f,c) =e=  4.1868*(-16276 + 21.430*(T(f,c) - Ti))/(159*1000) ;
+EQUH2(f,c)$(ord(f) le nfe)..
+Hout('Cu2O',f,c) =e=  4.1868*(-31124 + 23.880*(T(f,c) - Ti))/(143*1000) ;
+EQUH3(f,c)$(ord(f) le nfe)..
+Hout('Ni2S',f,c) =e= 4.1868*(-40667 + 45.840*(T(f,c) - Ti))/(240.1*1000);
+EQUH4(f,c)$(ord(f) le nfe)..
+Hout('NiO',f,c) =e=  4.1868*(-42693 + 13*(T(f,c) - Ti))/(74.71*1000);
+EQUH5(f,c)$(ord(f) le nfe)..
+Hout('CoS',f,c) =e=  4.1868*(-6800 + 10.6*(T(f,c)- Ti))/(90.93*1000);
+EQUH6(f,c)$(ord(f) le nfe)..
+Hout('CoO',f,c) =e= 4.1868*(-44425 + 14.5*(T(f,c) - Ti))/(74.93*1000) ;
+EQUH7(f,c)$(ord(f) le nfe)..
+Hout('FeS',f,c) =e=  4.1868*(-15447 + 14.95*(T(f,c) - Ti))/(87.85*1000) ;
+EQUH8(f,c)$(ord(f) le nfe)..
+Hout('FeO',f,c) =e=  4.1868*(-61256 + 16.3*(T(f,c) - Ti))/(71.85*1000);
+EQUH9(f,c)$(ord(f) le nfe)..
+Hout('Fe3O4',f,c) =e=  4.1868*(-237407 + 51.0*(T(f,c) - Ti))/(231.55*1000);
+EQUH10(f,c)$(ord(f) le nfe)..
+Hout('H2O',f,c) =e= 4.1868*(-57880 + 5.227*(T(f,c) - Ti))/(18*1000) ;
+EQUH11(f,c)$(ord(f) le nfe)..
+Hout('Ni2',f,c) =e= 4.1868*(5.39*(T(f,c) - Ti) + 0.003157*0.5*((T(f,c)**2) - Ti**2))/(28*1000) ;
+EQUH12(f,c)$(ord(f) le nfe)..
+Hout('SiO2',f,c) =e= 4.1868*(-221684 + 20.5*(T(f,c) - Ti))/(60*1000) ;
+EQUH13(f,c)$(ord(f) le nfe)..
+Hout('CaO',f,c) =e= 4.1868*(-136925 + 15*(T(f,c) - Ti))/(56*1000);
+EQUH14(f,c)$(ord(f) le nfe)..
+Hout('MgO',f,c) =e= 4.1868*(-134083 + 16*(T(f,c) - Ti))/(40*1000);
+EQUH15(f,c)$(ord(f) le nfe)..
+Hout('Al2O3',f,c) =e= 4.1868*(-381341 + 34.623*(T(f,c)- Ti))/(102*1000);
+EQUH16(f,c)$(ord(f) le nfe)..
+Hout('Cr2O3',f,c) =e= 4.1868*(-255631 + 37.50*(T(f,c) - Ti))/(168*1000);
+EQUH17(f,c)$(ord(f) le nfe)..
+Hout('SO2',f,c) =e= 4.1868*(-70743 + 13.093*(T(f,c) - Ti) + 0.000801*0.5*((T(f,c)**2) - Ti**2))/(64*1000);
+EQUH18(f,c)$(ord(f) le nfe)..
+Hout('CO2',f,c) =e= 4.1868*(-93777 + 12.7*(T(f,c) - Ti)  + 0.001152*0.5*((T(f,c)**2) - Ti**2))/(44*1000);
+EQUH19(f,c)$(ord(f) le nfe)..
+Hout('O2',f,c) =e= 4.1868*(7.412*(T(f,c) - Ti) + 0.001002*0.5*((T(f,c)**2) - Ti**2))/(32*1000) ;
+*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+**----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+**---------------------------------------Enthalpies of INPUT FEED---------------------------------------------------------------------------------------------------------------------
+
+EQUH1in.. Hin('Cu2S') =e=  4.1868*(-19400 + 11.457*(Ti - Ti) + 0.023225*0.5*(Ti**2 - Ti**2))/(159*1000) ;
+EQUH2in..
+Hin('Cu2O') =e=  4.1868*(-40800 + 18.045*(Ti - Ti) - 0.001621*0.5*(Ti**2 - Ti**2))/(143*1000) ;
+EQUH3in..
+Hin('Ni2S') =e= 4.1868*(-51700 + 27.056*(Ti - Ti) + 0.011622*0.5*(Ti**2 - Ti**2))/(240.1*1000);
+EQUH4in..
+Hin('NiO') =e=  4.1868*(-57290 + 77.873*(Ti - Ti) - 0.250595*0.5*(Ti**2 - Ti**2))/(74.71*1000);
+EQUH5in..
+Hin('CoS') =e=  4.1868*(-19800 + 10.6*(Ti- Ti) + 0.00251*0.5*(Ti**2 - Ti**2))/(90.93*1000);
+EQUH6in..
+Hin('CoO') =e= 4.1868*(-56870 + 12.268*(Ti - Ti) + 0.000065*0.5*(Ti**2 - Ti**2))/(74.93*1000) ;
+EQUH7in..
+Hin('FeS') =e=  4.1868*(-24300 - 65.313*(Ti - Ti) + 0.186229*0.5*(Ti**2 - Ti**2))/(87.85*1000) ;
+EQUH8in..
+Hin('FeO') =e=  4.1868*(-63879 + 12.142*(Ti - Ti) + 0.002059*0.5*(Ti**2 - Ti**2))/(71.85*1000);
+EQUH9in..
+Hin('Fe3O4') =e=  4.1868*(-267300 + 113.579*(Ti - Ti) - 0.208811*0.5*(Ti**2 - Ti**2))/(231.55*1000);
+EQUH10in..
+Hin('H2O') =e= 4.1868*(-68315 + 14.266*(Ti - Ti) + 0.0055*0.5*(Ti**2 - Ti**2))/(18*1000) ;
+EQUH11in..
+Hin('Ni2') =e= 4.1868*(5.39*(Ti - Ti) + 0.003157*0.5*(Ti**2 - Ti**2))/(28*1000) ;
+EQUH12in..
+Hin('SiO2') =e= 4.1868*(-217700 + 13.882*(Ti - Ti) - 0.000008*0.5*(Ti**2 - Ti**2))/(60*1000) ;
+EQUH13in..
+Hin('CaO') =e= 4.1868*(-151790 + 11.86*(Ti - Ti) + 0.00108*0.5*(Ti**2 - Ti**2))/(56*1000);
+EQUH14in..
+Hin('MgO') =e= 4.1868*(-143700 + 11.442*(Ti - Ti) + 0.001092*0.5*(Ti**2 - Ti**2))/(40*1000);
+EQUH15in..
+Hin('Al2O3') =e= 4.1868*(-400400 + 24.821*(Ti- Ti) + 0.006279*0.5*(Ti**2 - Ti**2))/(102*1000);
+EQUH16in..
+Hin('Cr2O3') =e= 4.1868*(-272395 + 24.930*(Ti - Ti) + 0.005844*0.5*(Ti**2 - Ti**2))/(168*1000);
+EQUH17in..
+Hin('SO2') =e= 4.1868*(-70743 + 13.093*(Ti - Ti) + 0.000801*0.5*(Ti**2 - Ti**2))/(64*1000);
+EQUH18in..
+Hin('CO2') =e= 4.1868*(-93777 + 12.7*(Ti - Ti)  + 0.001152*0.5*(Ti**2 - Ti**2))/(44*1000);
+EQUH19in..
+Hin('O2') =e= 4.1868*(7.412*(Ti - Ti) + 0.001002*0.5*(Ti**2 - Ti**2))/(32*1000) ;
+*---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+**-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*=============================================================================================================================================================================================
+EQUAIR(f)$(ord(f) le nfe)..
+TotalAir(f) =e= MattecarrierAir + CoalcarrierAir + FeedAir(f) ;
+
+**--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+**------------------------------------------------------Enthalpy of Feed at 25 degrees celsius --------------------------------------------------------------------------------------------------------------
+
+EQUENTHINe(f,c)$(ord(f) le nfe)..
+Hreact(f,c) =e= -66683 +((-15.13)*Feedflux(f)) + ((-2.62)*Feedcoal(f))   ;
+*Hreact(f) =e= (OUT0('Cu',f)/0.8)*Hin('Cu2S') + (OUT0('Ni',f)/0.8)*Hin('Ni2S') + (OUT0('Fe',f)/0.64)*Hin('FeS') + (OUT0('Co',f)/0.65)*Hin('CoS') + (OUT0('SiO2',f)*Hin('SiO2')) + (OUT0('CaO',f)*Hin('CaO')) + (OUT0('MgO',f)*Hin('MgO')) + (OUT0('Al2O3',f)*Hin('Al2O3'))  + (OUT0('Cr2O3',f)*Hin('Cr2O3')) + FeedAir(f)*0 + Feedindoxygen(f)*0  +  Feedcoal(f)*(-2.62) + Feedflux(f)*(-15.13);
+
+*EQUENTHBAL(f,c)$(ord(f) le nfe)..
+*sum((m),(EXT(m,f,c)*Cp(m,f,c)))*Tdot(f,c) =e= Hreact(f) - (Heatloss) - ((4.1868*(20.9*T(f,c))/159.16)*EXT('Cu2S',f,c) + (4.1868*(10.87*T(f,c)-(150600/T(f,c)))/143.09)*EXT('Cu2O',f,c) + (4.1868*(9.25*T(f,c))/149.45)*EXT('Ni2S',f,c) + (4.1868*(11.3*T(f,c))/74.69)*EXT('NiO',f,c) + (4.1868*(10.6*T(f,c))/60.075)*EXT('CoO',f,c) + (4.1868*(43.65*T(f,c))/74.93)*EXT('CoS',f,c) + (4.1868*(12.05*T(f,c))/87.91)*EXT('FeS',f,c) + (4.1868*(12.62*T(f,c)-(76200/T(f,c)))/71.84)*EXT('FeO',f,c) + (4.1868*(41.17*T(f,c)-(979500/T(f,c)))/231.53)*EXT('Fe3O4',f,c) + (4.1868*(8.22*T(f,c))/18)*EXT('H2O',f,c) + (4.1868*(6.50*T(f,c))/28)*EXT('Ni2',f,c) + (4.1868*(10.95*T(f,c))/60.08)*EXT('SiO2',f,c) +(8.27*T(f,c) + 258E-6*0.5*sqrt(T(f,c)) - (187700/T(f,c))/32)*EXT('O2',f,c) + (4.1868*(10.0*T(f,c)-(108000/T(f,c)))/56.07)*EXT('CaO',f,c) + (4.1868*(10.86*T(f,c)-(208700/T(f,c)))/40.30)*EXT('MgO',f,c) + (4.1868*(22.08*T(f,c)-(522500/T(f,c)))/101.96)*EXT('Al2O3',f,c) + (4.1868*(26.0*T(f,c))/151.99)*EXT('Cr2O3',f,c) + (4.1868*(7.70*T(f,c))/64.06)*EXT('SO2',f,c) + (4.1868*(10.34*T(f,c)) -(195500/T(f,c))/44.01)*EXT('CO2',f,c));
+**--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+**------------------------------------------------------heat balance equation--------------------------------------------------------------------------------------------------------------
+
+EQUENTHBAL(f,c)$(ord(f) le nfe)..
+sum((m),(EXT(m,f,c)*(Cp(m,f,c))))*Tdot(f,c) =e= Hreact(f,c) - ( 48668 + EXT('Cu2S',f,c)*Hout('Cu2S',f,c) + EXT('Ni2S',f,c)*Hout('Ni2S',f,c) + EXT('FeS',f,c)*Hout('FeS',f,c) + EXT('CoS',f,c)*Hout('CoS',f,c) + EXT('FeO',f,c)*Hout('FeO',f,c) + EXT('SiO2',f,c)*Hout('SiO2',f,c) + EXT('CaO',f,c)*Hout('CaO',f,c) + EXT('MgO',f,c)*Hout('MgO',f,c) + EXT('Al2O3',f,c)*Hout('Al2O3',f,c) + EXT('Cr2O3',f,c)*Hout('Cr2O3',f,c) + EXT('Fe3O4',f,c)*Hout('Fe3O4',f,c) + EXT('NiO',f,c)*Hout('NiO',f,c) + EXT('Cu2O',f,c)*Hout('Cu2O',f,c) + EXT('CoO',f,c)*Hout('CoO',f,c) + EXT('Ni2',f,c)*Hout('Ni2',f,c) + EXT('SO2',f,c)*Hout('SO2',f,c) + EXT('CO2',f,c)*Hout('CO2',f,c) + EXT('O2',f,c)*Hout('O2',f,c) + EXT('H2O',f,c)*Hout('H2O',f,c) );
+
+**-----------------------------------------------------Objective function------------------------------------------------------------------------------------------------------------------
+**----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+OBJ..
+z =e= sum((f,c),tt(f,c)*(0.3*((EXT('Cu2S',f,c)*Copperprice) + (EXT('Ni2S',f,c)*Nickelprice) + (EXT('CoS',f,c)*Cobaltprice) + (EXT('SO2',f,c)*SO2price)) - 0.7*((Feedflux(f)*Fluxprice) + (FeedCoal(f)*Coalprice) + (TotalAir(f)*Airprice) + (Feedindoxygen(f)*indoxygenprice) + (Feedconc(f)*Concentrateprice))))  ;
+*z =e= sum((f,c),(tt(f,c)*(Feedflux(f)*Fluxprice) + (FeedCoal(f)*Coalprice) + (TotalAir(f)*Airprice) + (Feedindoxygen(f)*indoxygenprice) + (Feedconc(f)*Concentrateprice)))  ;
+*z =e= sum((f,c), T(f,c) - Tinit ) ;
+*z =e= sum((f,c), tt(f,c) - tt0(f)) ;
+*z =e= sum((f,c), tt(f,c)) ;
+*z =e= sum((i,f,c), OUTdot(i,f,c) );
+*z =e= 5 ;
+
+*EQZ(f,c)..
+*Pf(f,c) - (tt(f,c)*((EXT('Cu2S',f,c)*Copperprice) + (EXT('Ni2S',f,c)*Nickelprice) + (EXT('CoS',f,c)*Cobaltprice) + (EXT('SO2',f,c)*SO2price)) - ((Feedflux(f)*Fluxprice) + (FeedCoal(f)*Coalprice) + (TotalAir(f)*Airprice) + (Feedindoxygen(f)*indoxygenprice) + (Feedconc(f)*Concentrateprice) + (Feedconc(f)*Operatingcost))) =e= 0 ;
+**-----------------------------------------------------//Initial Amounts//---------------------------------------------------------------------------------------------------------------------------------------------------
+**------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+EQUIN1(i,f)..
+OUT0(i,f)=e= Feedconc(f)*inletconc(i) + Feedflux(f)*inletflux(i) + Feedcoal(f)*inlet2coal(i)+ TotalAir(f)*inlet4Air(i) + Feedindoxygen(f)*inlet5indoxygen(i)   ;
+
+EQUIN(i,c)..
+OUT0(i,'1')=e= Feedconc('1')*inletconc(i) + Feedflux('1')*inletflux(i) + Feedcoal('1')*inlet2coal(i) + TotalAir('1')*inlet4Air(i) + Feedindoxygen('1')*inlet5indoxygen(i)   ;
+
+EQUTEMP..
+T0('1')=e= Tinit;
+
+EQUTIME..
+tt0('1')=e= 0;
+
+**---------------------------------------------------------Ratios---------------------------------------------------------------------------------------------------------------------------------------------
+**---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+EQURATIO(f)..
+(Feedconc(f)*OxyMatteRatio(f)) =e= 1000*Feedindoxygen(f) ;
+
+EQURATIO1(f)..
+(Feedconc(f)*FluxMatteRatio(f)) =e= 1000*Feedflux(f) ;
+
+EQURATIO2(f)..
+(feedcoal(f)*OxyFuelRatio(f)) =e= 1000*Feedindoxygen(f)  ;
+
+EQURATIO3(f)..
+(feedconc(f)*LanceAirMatteRatio(f)) =e= 1000*FeedAir(f)  ;
+
+*EQUSUM..
+*sum((i,f,c),OUT(i,f,c)*tt(f,c)) - sum((f,c),tt(f,c)*(MMatte(f,c) + MSlag(f,c) + MOffgas(f,c))) =e= dummy ;
+
+
+
+Model  dynamic /all/;
+
+*=======================================================================================================================================================================================================================
+*==================================================INITIALISATION & BOUNDS============================================================================================
+tt.l(f,c) = ttguess(f,c);
+*Feedconc.l(f) = feedconcguess(f);
+
+FeSiratio.lo(f,c) =1.8 ;FeSiratio.up(f,c) =1.8;
+FeSiratio.l(f,c)=1.8;
+Irongrd.l(f,c)=2.78;
+Nickelgrd.l(f,c)=3.2;
+*Nickelgrd.up(f,c)=0.035;
+*Nickelgrd.lo(f,c)=0.01;
+Irongrd.lo(f,c)=2.5;
+*Nickelgrd.lo(f,c)=3.0;
+
+*Irongrd.up(f,c)=100;
+*Nickelgrd.up(f,c)=100;
+
+*EXT.lo(m,f,c) = 1;
+*EXT.up(m,f,c) = 900000;
+*OUT.lo(i,f,c) = 0.1; OUT.up(i,f,c) =500000;
+*T.lo(f,c)= 1593; T.up(f,c) =1603;
+*T.lo(f,c)= 1596; T.up(f,c) =1600;
+T.lo(f,c)= 1595; T.up(f,c) =1601;
+T.l(f,c) =Tinit;
+*T.lo(f,c)= 1590; T.up(f,c) =1606;
+*T.l(f,c) =Tinit;
+*T.up(f,c) =1623
+*OUT0.lo(i,f) = 1;
+*OUT0.up(i,f)= 1000000;
+*OxyMatteRatio.lo(f) =0.100; OxyMatteRatio.up(f)=250;
+*FluxMatteRatio.lo(f)= 0.0180; FluxMatteRatio.up(f) =250;
+*OxyFuelRatio.lo(f)= 10; OxyFuelRatio.up(f) = 2000;
+FeedAir.lo(f)= 0.1;  FeedAir.up(f)= 30000;
+* FeedAir.l(f)= 20000;
+Feedflux.lo(f)= 2000; Feedflux.up(f)=20000 ;
+Feedflux.l(f)= 8000;
+Feedindoxygen.lo(f) = 0.100;  Feedindoxygen.up(f) = 12000; Feedindoxygen.l(f) = 10000;
+Feedconc.lo(f) = 35000;
+*Feedconc.l(f) = 35000;
+Feedconc.up(f) = 35000;
+*TotalAir.lo(f) = 0.100; TotalAir.up(f) = 39000; TotalAir.l(f) = 25000  ;
+TotalAir.lo(f) = 0.100; TotalAir.up(f) = 40000; TotalAir.l(f) = 25000  ;
+T0.l(f) = Tinit;
+OUTdot.l(i,f,c) = 1; Tdot.l(f,c) = 1;
+*OUTdot.lo(i,f,c) = -10000;
+*OUTdot.up(i,f,c) = 10000 ;
+FeedCoal.lo(f) = 500 ; FeedCoal.up(f) = 4500;  FeedCoal.l(f) = 1000;
+
+*XCumte.lo(f,c)=0.001;
+*XNimte.lo(f,c)=0.001;
+*XFemte.lo(f,c)=0.001;
+*XSmte.lo(f,c)= 0.001;
+
+*XCuslg.lo(f,c) = 0.001;
+*XNislg.lo(f,c) = 0.001;
+*XFeslg.lo(f,c) =0.001;
+*XSislg.lo(f,c)=0.001;
+*          Vtot(f,c)
+*XSO2ffgas.lo(f,c)=0.01;
+*XCO2ffgas.lo(f,c)= 0.001;
+*XNi2ffgas.lo(f,c) = 0.001;
+*XO2ffgas.lo(f,c)=0.001;
+*XCumte.up(f,c)=1;
+*XNimte.up(f,c)=1;
+*XFemte.up(f,c)=1;
+*XSmte.up(f,c)= 1;
+
+*XCuslg.up(f,c) = 1;
+*XNislg.up(f,c) = 1;
+*XFeslg.up(f,c) =1;
+*XSislg.up(f,c)=1;
+*          Vtot(f,c)
+*XSO2ffgas.up(f,c)=1;
+*XCO2ffgas.up(f,c)= 1;
+*XNi2ffgas.up(f,c) = 1;
+*XO2ffgas.up(f,c)=1;
+*Xffgas.lo(m,f,c)=0.1;Xffgas.up(m,f,c)= 1;
+
+
+*============================================================SOLVER============================================================================================================
+
+option nlp = coinipopt;
+*option nlp = baron;
+*option nlp = conopt;
+*option nlp = minos;
+
+dynamic.optfile=1;
+dynamic.optca=1;
+dynamic.optcr=1;
+*dynamic.inputdir;
+*dynamic.Tolinfrep=100;
+*dynamic.Tolinfeas = 50;
+* Execerror = 0;
+* Presolve
+option reslim = 6000 ;
+*option MaxProcDir = on;
+*$call gams dynamic gdx=default;
+*$call GAMS dynamic gdx=dynamic
+$call "gdx2xls gdxall.gdx";
+
+
+
+
+*$unload  EXT FeedAir
+
+*Solve dynamic using nlp maximizing MatteFall ;
+*Solve dynamic using nlp minimizing SlagFall ;
+Solve dynamic using nlp maximizing z ;
+*Solve dynamic using nlp minimizing z ;
+*execute_unload 'dynamic.xls', i,m,f ;
+*execute_unload ’results.gdx’;
+*execute ’=gdxviewer results.gdx’;
+
+*$GDXin dynamic
+*$load
+$GDXin
+
+* Export the data to a GDX file
+
+execute_unload 'dynamic.gdx',
+
+   EXT,
+   FeedAir,
+   Feedconc,
+   Feedcoal,
+   Feedflux,
+   OxyMatteRatio,
+   FluxMatteRatio,
+   OxyFuelRatio,
+   Feedindoxygen,
+   TotalAir,
+   FeSiratio,
+$ontext
+   XCumte,
+   XNimte,
+   XFemte,
+   XCuslg,
+   XNislg,
+   XFeslg,
+   XSislg,
+   XSO2ffgas,
+   XCO2ffgas,
+   XNi2ffgas,
+   XO2ffgas,
+$offtext
+   MMatte,
+   MSlag,
+   MOffgas,
+   OUT,
+   OUTdot,
+   Tdot,
+
+   tt,
+   T;
+
+execute"=gdxviewer dynamic.gdx";
+execute"=gdx2xls dynamic.gdx";
+execute"=gdx2xls gdxall.gdx";
+
+
+*execute"=xlexport dynamic.gdx";
+* generate a chart file
+* open the file in the GAMSIDE to view the chart
+*$GDXout dynamic
+$GDXout
+*$libinclude xlexport dynamic(5)2nd.l myspread.xls output3!
+
+*execute "Gdxxrw Gdxxrwwrite.gdx o=dynamic.xls set=i Rng=output2!a1 cdim=1 "
+*execute "Gdxxrw Gdxxrwwrite.gdx o=dynamic.xls set=j Rng=output2!a5 rdim=1"
+
+*Execute_unload 'dynamic.gdx' i,m,f;
+*execute "Gdxxrw dynamic.gdx o=dynamic.xls set=1 Rng=output2!a1 cdim=1 "
+*Gdxfile=dynamic.gdx
+
+*$include gnu_opt.gms
+* titles
+$setglobal gp_title "E-V Frontier "
+$setglobal gp_xlabel "Variance of Income"
+$setglobal gp_ylabel "Mean Income"
+*$libinclude gnupltxy graphit mean var
+
+$if not setglobal debug $offlisting offinclude
+
+$if not set batch $set batch
+$if not setglobal batch $set batch
+$if "%batch%"==no $set batch
+$if "%batch%"==NO $set batch
+
+*-----------------------------------------------------------------------------
+* GAMS Source Code (resides in the ldir directory): GNUPLOT Plotting Routine
+*-----------------------------------------------------------------------------
+
+*       $setglobal domain
+*       $setglobal labels
+*       $setglobal xvalue
+*       $setglobal gp_file
+*       $libinclude plot <item>
+
+$if not set gp_count $set gp_count 0
+$eval       gp_count %gp_count%+1
+$log        gp_count=%gp_count%
+$setglobal  gp_count %gp_count%
+
+*-----------------------------------------------------------------------------
+*       Declarations:
+*-----------------------------------------------------------------------------
+
+$if not declared gp__1          alias(gp__1,gp__2,*);
+$if not declared gp_row         set gp_row(*), gp_col(*);
+$if not declared gp_r           parameter gp_r(*);
+$if not declared gp_rr          alias (gp_rr,gp_row);
+$if not declared gp_na          scalar gp_na /na/;
+$if not declared gp_count       scalar gp_count, gp_counter;
+
+*       Update command and data file names for current invocation:
+
+$set cmd  gp_cmd%gp_count%
+$set dat  gp_dat%gp_count%
+$set file gp_%gp_count%
+$if setglobal gp_file $set file %gp_file%
+$if "%gp_file%"=="" $set file gp_%gp_count%
+$setglobal gp_file
+
+execute 'if exist %dynamic%.plt del %dynamic.plt';
+execute 'if exist %dynamic%.dat del %dynamic%.dat';
+
+file %cmd% /%file%.plt/;
+file %dat% /%file%.dat/;
+
+*       If no arguments, this is solely for intialization:
+
+$if a%1 == a $exit
+
+$if declared %1                 $goto declared
+
+$error PLOT ERROR: Identfier %1 is not declared.
+$exit
+
+$label declared
+$if defined %1     $goto defined
+$error PLOT ERROR: identfier %1 is not defined.
+$exit
+
+$label defined
+
+$if not setglobal domain $setglobal domain
+$if not setglobal series $setglobal series
+$if not "%2"=="" $setglobal domain %2
+$onuni
+
+$if dimension 1 %1 $goto start1
+
+$if not "%3"=="" $setglobal series %3
+
+$if dimension 2 %1 $goto getsets
+$if not %series%=="" $goto getsets
+$error PLOT error: series must be specified for multidimensional plots
+$exit
+
+*       Extract row and column labels:
+
+$label start1
+gp_row(gp__1)$%1(gp__1) = yes;
+
+$label getsets
+
+$if not dimension 1 %1 $goto arraysets
+
+$if "%domain%"=="" gp_row(gp__1)$abs(%1(gp__1)) = yes;
+$if not "%domain%"=="" gp_row(%domain%) = yes;
+$goto checkx
+
+$label arraysets
+$if not "%domain%"=="" $goto getseries
+
+$if %series%=="" gp_row(gp__1)$sum(gp__2, abs(%1(gp__1,gp__2))) = yes;
+$if not %series%=="" gp_row(gp__1)$sum(%series%, abs(%1(gp__1,%series%))) = yes;
+
+$label getseries
+$if "%series%"=="" gp_col(gp__2)$sum(gp__1, abs(%1(gp__1,gp__2))) = yes;
+$if not "%domain%"=="" gp_row(%domain%) = yes;
+
+$if not dimension 2 %1 $goto checkx
+$if not "%series%"=="" gp_col(%series%) = yes;
+
+*       See if xvalue  has been specified:
+
+$label checkx
+$if setglobal xvalue $goto xvalue
+
+*       1. No X parameter array has been specified assign unit values:
+
+gp_count = 1;
+loop(gp_row,
+  gp_r(gp_row) = gp_count;
+  gp_count = gp_count + 1;
+);
+$goto write
+
+$label xvalue
+
+*       If the plotted item is single dimensional, skip
+*       we must assume that xvalue is a parameter:
+
+$if partype %xvalue%   $goto xparam
+
+$if dimension 2 %1 $goto xcolumn
+
+$error  PLOT ERROR: Cannot find parameter %xvalue% (xvalue).
+$exit
+
+*       2. X parameter values are in the data array:
+
+$label xcolumn
+gp_r(gp_row) = %1(gp_row,"%xvalue%");
+gp_col("%xvalue%") = no;
+
+$goto write
+
+*       3. X values are in a separate array:
+
+$label xparam
+$if  partype %xvalue% $goto gotparam
+$abort  Unrecognized symbol specified as xvalue in plot call: %xvalue%
+$label gotparam
+gp_r(gp_row) = %xvalue%(gp_row);
+
+$label write
+put %cmd%;
+file.lw = 0;
+file.nr = 0;
+file.nd = 0;
+file.nw = 6;
+
+put '# Plotting item %1'/;
+put 'set title "',%1.ts,'"'/;
+$if set title put 'set title %title%'/;
+
+$if not setglobal xvalue  put 'set xrange [1:',card(gp_row),']'/;
+
+%cmd%.nd = 3;
+%cmd%.nw = 12;
+$if setglobal xvalue put 'set xrange [',(smin(gp_row,gp_r(gp_row))),':',(smax(gp_row,gp_r(gp_row))),']'/;
+
+$if not setglobal labels $goto options
+
+put 'set xtics (';
+%cmd%.nd = 3;
+%cmd%.nw = 12;
+gp_count = 0;
+gp_counter = 0;
+loop(gp_row,
+  gp_count=gp_count+1;
+  if (%labels%(gp_row),
+    gp_counter = gp_counter + 1;
+    if (gp_counter gt 1, put ',';);
+$if not setglobal xvalue  put '\'/' "',%labels%.te(gp_row),'" ',gp_count;
+$if     setglobal xvalue  put '\'/' "',%labels%.te(gp_row),'" ',%xvalue%(gp_row);
+  );
+);
+put ')'/;
+
+*       Pass through any user-specified options:
+
+$label options
+
+put 'set style data lines'/;
+
+*       Permit user-override of up to 10 GNUPLOT features:
+
+$set wtitle WGNUPLOT %file%.plt -- Enter alt-F4 to close window.
+
+put 'set term windows title "%wtitle%"'/;
+$if setglobal gp_opt0  put "%gp_opt0%"/;
+$if setglobal gp_opt1  put "%gp_opt1%"/;
+$if setglobal gp_opt2  put "%gp_opt2%"/;
+$if setglobal gp_opt3  put "%gp_opt3%"/;
+$if setglobal gp_opt4  put "%gp_opt4%"/;
+$if setglobal gp_opt5  put "%gp_opt5%"/;
+$if setglobal gp_opt6  put "%gp_opt6%"/;
+$if setglobal gp_opt7  put "%gp_opt7%"/;
+$if setglobal gp_opt8  put "%gp_opt8%"/;
+$if setglobal gp_opt9  put "%gp_opt9%"/;
+
+
+$if setglobal gp_opt10  put "%gp_opt10%"/;
+$if setglobal gp_opt11  put "%gp_opt11%"/;
+$if setglobal gp_opt12  put "%gp_opt12%"/;
+$if setglobal gp_opt13  put "%gp_opt13%"/;
+$if setglobal gp_opt14  put "%gp_opt14%"/;
+$if setglobal gp_opt15  put "%gp_opt15%"/;
+$if setglobal gp_opt16  put "%gp_opt16%"/;
+$if setglobal gp_opt17  put "%gp_opt17%"/;
+$if setglobal gp_opt18  put "%gp_opt18%"/;
+$if setglobal gp_opt19  put "%gp_opt19%"/;
+
+%cmd%.nd = 0;
+%cmd%.nw = 6;
+
+%dat%.nw = 16;
+%dat%.nd = 8;
+%dat%.nr = 2;
+
+$if dimension 2 %1 $goto twodimen
+$if not dimension 1 %1 $goto multidim
+
+*       A. Plot a vector.
+
+put 'set nokey'/;
+put 'plot "%file%.dat"  using 1:2'/;
+$if not "%batch%"=="" put /'quit'/;
+
+
+loop(gp_row,
+  put %dat%, gp_r(gp_row);
+  if (%1(gp_row) eq gp_na,
+    put '          ';
+  else
+    put %1(gp_row);
+  );
+  put /;
+);
+put //;
+
+$goto putclose
+
+$label twodimen
+
+*       B. Plot a two-dimensional array.
+
+gp_count=1;
+put 'plot ';
+loop(gp_col,
+  if (gp_count gt 1, put ',';);
+  %cmd%.nw = 0
+
+  put  '\'/' "%file%.dat" index ',(gp_count-1):0:0,
+        ' using 1:2 title "',gp_col.te(gp_col),'"';
+
+  %cmd%.nw = 6;
+  gp_count = gp_count + 1;
+);
+
+$if not "%batch%"=="" put /'quit'/;
+
+
+loop(gp_col,
+    loop(gp_row,
+      put %dat%, gp_r(gp_row);
+      if (%1(gp_row,gp_col) eq gp_na,
+        put '          ';
+      else
+        put %1(gp_row,gp_col);
+      );
+      put /;
+    );
+    put //;
+);
+$goto putclose
+
+
+$label multidim
+
+*       C. Plot a multi-dimensional array
+
+gp_count=1;
+put 'plot ';
+loop(%series%,
+  if (gp_count gt 1, put ',';);
+  %cmd%.nw = 0
+  put  '\'/' "%file%.dat" index ',(gp_count-1):0:0,
+        ' using 1:2 title "',%series%.te(%series%),'"';
+  %cmd%.nw = 6;
+  gp_count = gp_count + 1;
+);
+$if not "%batch%"=="" put /'quit'/;
+
+
+loop(%series%,
+    loop(gp_row,
+      put %dat%, gp_r(gp_row);
+      if (%1(gp_row,%series%) eq gp_na,
+        put '          ';
+      else
+        put %1(gp_row,%series%);
+      );
+      put /;
+    );
+    put //;
+);
+
+
+$label putclose
+putclose %cmd%;
+putclose %dat%;
+
+*       We are done with the row and column sets.  Clean them
+*       out so that they can be used a second time:
+
+gp_row(gp__1) = no;
+gp_col(gp__2) = no;
+
+$offuni
+
+$if not "%batch%"=="" execute '=wgnuplot %file%.plt';
+$if     "%batch%"=="" execute '=wgnuplot -persist %file%.plt';
+
