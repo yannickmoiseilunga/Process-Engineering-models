@@ -1,0 +1,706 @@
+$Title Detailed Model for Nanofiltration - Standalone without Water Network
+$Offupper
+*$Offlisting
+
+$ontext
+This model is formulated to verify results from orhaslina Mohd Sidek, Sarifah Fauziah Syed Draman, Nora’aini Ali and Ilyani Abdullah
+(2015)
+It is going to be used as the basis for IWAMNs formulation...
+$offtext
+
+Sets
+*i   solute ion /1*2/
+i   solute ion NaCl + MgCl2 Na+ Mg2+ Cl- /1*3/
+;
+
+Alias(i,ii);
+*negative variables
+
+*DeltaW(i);
+
+Positive Variables
+*rp            Effective pore radius (m)
+C(i)          Concentration in membrane (mol per m3)
+*Cb(i)         Concentration in the bulk solution (mol per m3)
+*Cp(i)         Concentration in permeate (mol per m3)
+Cw(i)         Concentration at the membrane wall (mol per m3)
+*Dp(i)         Hindered diffusivity (m2 per sec)
+*Dinf(i)       Bulk diffusivity (m2 per sec)
+*F             Faraday constant (C per mol )
+*G             The hydrodynamic lag coefficient
+*K(-1)         The hydrodynamic enhanced drag coefficient
+j(i)          Ion flux (based on membrane area) (mol per m2 sec)
+Kc(i)         Hindrance factor for convection
+Kd(i)         Hindrance factor for diffusion
+*Pm            Membrane permeability (m3 per sec m2 bar)
+*rp            Effective pore radius (m)
+*R             Gas constant (J per mol K)
+Rreal         Real rejection of the solute
+*T             Absolute temperature (K)
+*x             Distance normal to membrane (m)
+*DeltaX        Effective membrane thickness (m)
+*Xd            Effective membrane charge (mol per m3)
+*A             Temperature-dependent parameter Debye-Huckel
+*z(i)          Valence of ion
+d             Thickness of film layer (m)
+DeltaP        Applied pressure drop (bar)
+phi           equilibrium partition coefficien as defined by Eq. (9)
+Deltaphi      Potential difference (V)
+*E_spec        Specific desalination energy per volume of product at stage s kWh per m3
+E_pu          Specific pumping energy per volume of product at stage s kWh per m3
+P_des         Power required for the plant
+*Pf            Pressure on the membrane feed side
+*Pp            Pressure on the permeate side
+Pos           Transmembrane osmotic pressure
+*Hoffcoef      The Van 't Hoff coefficient
+
+ai            Hydrodynamic (Stokes) radius of ion i or KCl ions (m)
+*a            hydrodynamic (Stokes) radius of ion i or KCl ions (m)
+
+C(i)          Concentration of ion i or uncharged solute within pore (mol per m3)
+Cix0          Concentration of ion i or uncharged solute within pore entrance (mol per m3)
+Cix           Concentration of ion i or uncharged solute within pore outlet (mol per m3)
+Cavg(i)       Concentration of ion i or uncharged solute within pore (mol per m3)
+Cf            Bulk feed concentration (mol per m3)
+
+Cp(i)         Permeate concentration of ion i or uncharged solute (mol per m3)
+Cw(i)         Wall concentration of ion i or uncharged solute (mol per m3)
+Dp(i)         Pore diffusion coefficient of ion i or uncharged solute (m2 per sec)
+*Dinf(i)       Bulk diffusion coefficient of ion i or uncharged solute (m2 per sec)
+d             Thickness of the oriented solvent layer (m)
+
+*f(i)          Iterative method test function for ion i (mol per m3)
+fT            Overall iterative method test function (mol per m3)
+J(i)          Ionic flux of ion i (pore area basis) mol per m2 per sec
+
+Jv            Volumetric flux (m3 per m2 sec)
+km(i)         Feed-side mass-transfer coefficient (m per sec) for laminar flow van der Horst 1995
+*Kc(i)         Hindrance factor for convection of ion i or uncharged solute (dimensionless)
+*Kd(i)         Hindrance factor for diffusion of ion i or uncharged solute (dimensionless)
+Pe(i)           Peclet number for ion i or uncharged solute (dimensionless)
+Q             Volumetric cross-flow rate in the spiral wound module (m3 per sec)
+*rs(i)
+rp            Effective pore radius (m)
+Rej           Rejection of electrolyte or ion i (dimensionless)
+
+Rcal          Calculated rejection (dimensionless)
+Rexp          Experimental rejection (dimensionless)
+Rlim          Limiting rejection (dimensionless)
+
+*T             Absolute temperature (K)
+*V             Solvent velocity (defined by Hagen Poiseuille) m per sec
+visk             Kinematic viscosity in m2 per sec mu per density
+*x             Axial position within the pore (m)
+*Xd            Effective charge density (mol per m3)
+
+*z(i)          Valence of ion i (dimensionless)
+
+dC(i)         Concentration difference of ion i or uncharged solute across the pore thickness (mol per m3)
+DeltaP        Applied pressure (N per m2)
+DeltaPe       Effective pressure driving force (N per m2)
+Dpi           Dynamic osmotic pressure difference (N per m2) (RT*sum [Cw(i) - Cp(i)])
+*DeltaW        Born solvation energy barrier J
+DeltaX        Membrane thickness (m)
+*DeltaphiD     Donnan potential of ion i at the pore entrance V
+*DeltaphiDp
+*eb            Bulk dielectric constant  (dimensionless)
+*ep            Relative permittivity or dielectric constant of the pore
+*ep            Pore dielectric constant (dimensionless)
+*er            Relative permittivity or the solvent’s dielectric constant
+*eb            Dielectric constant of the oriented water layer (dimensionless)
+*mu            Solvent viscosity within pores (N. sec per m2)
+*lambda        Ratio of ionic or uncharged solute radius to pore radius (dimensionless)
+sigma         Ratio of effective membrane charge density to bulk feed concentration (dimensionless)
+phidot(i)     Partial partition coefficient (dimensionless)  (phidot(i)*kT = phi(i)*exp(- DeltaW(i))
+phi(i)        Steric partition coefficient of ion i or uncharged solute (dimensionless (1-lambda)**2)
+phiB          solvation energy contribution to partitioning
+phidx
+phix
+*dphi          Potential within the pore V
+phiD
+*n             The mixing efficiency of spacer
+*Lambda(i)     The ratio of solute radius to pore radius
+L
+Lmix          The mixing length of the spacer
+*hf            The feed channel height
+Pem           Peclet number in the channel given by Pe = 2*hf*Uw per Dinf(i)
+Sc(i)         The Schmidt number for each solute species given by Sci = v per Dinf(i)
+Uw            The bulk velocity of flow at that location
+
+mf(i)         The mass of the solute 'i' in the feed side of a cell
+dS            The membrane area
+mp(i)         The mass balance of each solute species 'i' in the permeate channel
+Qf            The mass of solvent on the feed side
+Qp            The mass of solvent on the permeate side
+gammaporep(i)
+Cdx(i)
+gammapore(i)  The solute activity coefficients just within the pore entrance
+gammam(i)     The solute activity coefficients at the membrane and feed solution interface
+gammap(i)     The solute activity coefficients at the permeate side of the membrane
+lambda(i)
+Ion           The ionic strength
+Ionp
+Ionw
+Ionxo
+Iondx
+*dummy
+*rs(i)         Solute stokes radius (m)
+Pf
+Vel
+ratioeff
+effthick      The effective membrane thickness 1.33 micronmeter
+efflength     The effective membrane length 23 centimeters
+DeltaX        Membrane thickness (m)
+DeltaL        Membrane length (m)
+Cpx(i)
+Cxo(i)
+*rejlim
+*ep
+*Recovery
+*Zeta
+*DeltaphiDp    The Donnan potential difference between the point just within the pore exit and the solution at the permeate-membrane interface
+*DeltaphiD     Donnan potential of ion i at the pore entrance V
+*Par1(i)
+Dout
+;
+
+variables
+Xd            Effective charge density (mol per m3)
+Rreal(i)
+rejlim
+Recovery(i)
+DeltaphiDp    The Donnan potential difference between the point just within the pore exit and the solution at the permeate-membrane interface
+DeltaphiD     Donnan potential of ion i at the pore entrance V
+Par1(i)
+;
+
+*Integer variable
+*N             Number of cell-pairs for desired capacity per stage;
+
+Variable
+obj           Objective function
+dummy
+slack1(i)
+slack2(i)
+slack3 ;
+
+Parameters
+*Vel             Solvent velocity (defined by Hagen Poiseuille) m per sec    /0.3/
+Pp               /101325/
+Mvalue        /1e-5/
+*Kc(i)         Hindrance factor for convection of ion i or uncharged solute (dimensionless)   /
+*         1   0.2
+*         2   0.22  /
+Kw            pure water permeability  350 LMH in m3 per m2 per sec  /12.6e-4/
+*Kd(i)         Hindrance factor for diffusion of ion i or uncharged solute (dimensionless)   /
+*         1   0.35
+*         2   0.30  /
+*effthick      The effective membrane thickness in micrometers  /1.33e-6/
+E_spec        Specific desalination energy per volume of product at stage s kWh per m3  /4/
+kboltz       k Boltzmann constant  / 1.38066e-23/
+deltaa      tolerance /1e-7/
+Mw(i)         Molecular weight of solutes     /
+
+*      1    0.0000026
+*      2    0.0000003    /
+*      1    23
+*      2    35    /
+      1    23
+      2    24
+      3    35  /
+z(i)          Valence of ion i (dimensionless)   /
+
+*      1    2
+*      2    1      /
+*      1    2
+*      2    2      /
+       1    1
+       2    2
+       3    1   /
+rs(i)      solute stokes radius  (m)  /
+       1    0.184e-9
+       2    0.347e-9
+       3    0.121e-9       /
+
+Dinf(i)       Bulk diffusivity (m2 per sec)     /
+*      1    1.5e-9
+*      2    1.5e-9  /
+      1    1.33e-9
+      2    0.706e-9
+      3    2.3e-9  /
+MCb(i)       Mass Concentration in the bulk solution (g per kg) /
+*      1    0.002
+*      2    0.002   /
+*      1    10.002
+*      2    10.002   /
+       1    398.6
+       2    254.2
+       3    1351  /
+*Parameter Cb(i)   /
+*Cb(i)*Mw(i) = MCb(i) /
+Cb(i)       Concentration in the bulk solution (mol per m3) /
+*      1    0.002
+*      2    0.002   /
+*      1    10.002
+*      2    10.002   /
+       1    17.33
+       2    10.6
+       3    38.6  /
+
+*Cp(i)         Concentration in permeate (mol per m3)      /
+*      1    0.01
+*      2    0.01    /
+*Lambda(i)     The ratio of solute radius to pore radius    /
+*      1    0.98
+*      2    0.8   /
+*       1    0.89
+*       2    0.75
+*       3    0.4  /
+*ratioeff     The ratio of effective thickness to porosity   /89.4/
+*rejlim       The limiting rejection for Cl anions /0.196/
+ep              /41.3/
+*hf            The feed channel height   /0.5/
+Zeta         Electric potential gradient at the feed=membrane interface /3.5/
+;
+Scalars
+*Cb            Concentration in the bulk solution (mol per m3) /0.5/
+Ak            Porosity dimensionless   /0.6/
+F             Faraday constant (C per mol )      /96485000/
+eta_p         Pumping efficiency                /0.7/
+*dphi          Potential within the pore V    /0.5/
+*k_mb          Mebrane and capital cost $ per m2    /100/
+*t_d           Operational days                     /300/
+*t_max         Estmated maximum membrane and equipment life in years      /5/
+
+*t_d           Operating time per year in days per year     /300/
+
+*Jw            Water flux (m3 per m2 sec)     /0.000005/
+*rp            Effective pore radius (m)      /1.27e-9/
+n             The mixing efficiency of spacer     /0.75/
+*Pos           Transmembrane osmotic pressure    /250/
+*Pm            Membrane permeability (m3 per sec m2 bar) /1.44e-7/
+Pm            Membrane permeability (m3 per sec m2 bar) /1.183/
+R             Gas constant (J per mol K)     /8.314/
+
+T             Absolute temperature (K)         /300/
+*x             Distance normal to membrane (m)    /0.000001/
+*x             Distance normal to membrane (m)    /0.001/
+*DeltaX        Effective membrane thickness (m)   /0.00000001/
+ratioxA       The ratio of effective thickness to porosity      /0.000003/
+*Lambda(i)     The ratio of solute radius to pore radius
+*z(1)          Valence of ion          /1/
+echarge       Electronic charge Coulomb   /1.602177e-19/
+*F             Faraday constant C per mol     /96487/
+*hf            The feed channel height     /2/
+kb            Boltzmann constant J per K     /1.38066e-23/
+enot          Permittivity of free space  J C2 per m (sometimes F per m) /8.854e-12/
+estar         Dielectric constant of the solvent within the pore from Desal-DK membrane data in Bowen et al 2002  /31/
+*DeltaphiDp    The Donnan potential difference between the point just within the pore exit and the solution at the permeate-membrane interface   /0.1/
+*DeltaphiD     Donnan potential of ion i at the pore entrance V  /3.5/
+*gammapore(i)  The solute activity coefficients just within the pore entrance
+*gammam(i)     The solute activity coefficients at the membrane and feed solution interface
+*Ion           The ionic strength
+*DeltaX        Membrane thickness (m)     /6e-1/
+*ep            Relative permittivity or dielectric constant of the pore                                    /80.4/
+er            Relative permittivity or the solvent’s dielectric constant  /40/
+* Labban, Omar, Chang Liu, Tzyy Haur Chong, and John H. Lienhard V. “Fundamentals of Low-Pressure Nanofiltration: Membrane Characterization, Modeling, and Understanding the Multi-Ionic Interactions in Water Softening.”
+eb            Dielectric constant of the bulk or oriented water layer (dimensionless)  /80.4/
+e             The permittivity of the medium (the value within the pore or in the bulk feed or permeate)       /0.1/
+ec            Elementary Electric charge   /1.602e-19/
+Navogrado     The Avogadro number /6.022140857e23/
+Hoffcoef      The Van't Hoff coefficient      /1.5/
+mu            Solution viscosity in kg per m s or Pa s    /0.0015/
+*Pf            Pressure on the membrane feed side   in KPa   /3000/
+rho           Fluid mass density (kg per m3)        /1000/
+rhomix           Fluid mass density (kg per m3)        /2530/
+k_el          Electric power cost $ per kWh      /0.12/
+k_mb          Mebrane and capital cost $ per m2      /1500/
+*k_tr          Conversion factor MJ per kWh           /3600/
+k_tr          Conversion factor MJ per kWh           /3.600/
+*Qp            Required production flowrate m3 per s   /0.003694/
+epsilon       Safety factor                          /0.7/
+t_max         Estmated maximum membrane and equipment life in years     /5/
+t_d           Operating time per year in days per year           /300/
+
+;
+Parameter DeltaW(i),
+          A  ;
+DeltaW(i) = ((z(i)**2)*(ec**2)*((1/eb) - (1/ep)))*(8*Pi*enot*rs(i))**(-1);
+A = ((ec**(3))*sqrt(Navogrado*2*Pi))*(log(10)*(4*Pi*enot*er*kb*T)**(2/3)) ;
+Equations
+Eq_1b(i)
+*Eq_1(i)
+*Eq_2
+Eq_4(i)
+Eq_4_1(i)
+
+Eq_5(i)
+Eq_6
+Eq_6_1
+Eq_6_2
+*Eq_6_2a
+*Eq_6_2b
+Eq_6_3(i)
+Eq_6_4(i)
+Eq_7(i)
+Eq_7_1(i)
+*Eq_7_2(i)
+*Eq_7_3(i)
+*Eq_7_3a(i)
+Eq_7_31(i)
+Eq_7_32(i)
+Eq_7_4
+Eq_7_4a
+Eq_7_4b
+Eq_7_4c
+*Eq_7_5
+Eq_7_6(i)
+Eq_7_6a(i)
+*Eq_7_7
+*Eq_7_8(i)
+Eq_8
+Eq_8a
+Eq_8b
+Eq_8c
+Eq_8_1
+Eq_8_2(i)
+Eq_9(i)
+Eq_9a(i)
+Eq_10(i)
+Eq_10_1(i)
+*Eq_10_2(i)
+*Eq_10_2a(i)
+Eq_10_3(i)
+Eq_12(i)
+Eq_12_1(i)
+*Eq_13
+Eq_13_1
+Eq_13_2(i)
+*Eq_13_3(i)
+Eq_13_4(i)
+*Eq_13_5(i)
+Eq_13_6
+Eq_14(i)
+Eq_14_1(i)
+*Eq_14_2
+Eq_14_3
+
+Eq_14_4
+*Eq_14_5
+
+Eq_14_6
+
+Bound01(i)
+*Bound02_1(i)
+*Bound02_2(i)
+*Bound02_2a(i)
+*Bound02_5
+*Bound02_3
+*Bound02_3a
+*Bound03_1
+
+*Bound03_2
+*Bound04_1
+*Bound04_2
+Bound04_2a
+*Bound04_3
+*Bound04_3a
+*Bound05_1
+*Bound05_2
+*Bound05_2a
+Bound09_1
+
+*Objective function
+Eq_27  ;
+*Eq_27a  ;
+*Eq_1a;
+
+*Eq_1(i)..               J(i)  =g= -Dp(i)*(dC(i)/DeltaX) - (z(i)*Cdx(i)*Dp(i)/(R*T))*F*(Deltaphi/DeltaX) + Kc(i)*Cdx(i)*Jv;
+Eq_1b(i)..               J(i) - (-Dp(i)*(dC(i)/DeltaX) - (z(i)*C(i)*Dp(i)/(R*T))*F*(Deltaphi/DeltaX) + Kc(i)*C(i)*Jv) =l= 0;
+*Eq_1b(i)..               J(i) - (-Dp(i)*(dC(i)/DeltaX) - (z(i)*Cdx(i)*Dp(i)/(R*T))*F*(Deltaphi/DeltaX) + Kc(i)*Cdx(i)*Jv) =g= 0;
+*Eq_1a..               sum(i,z(i)*C(i))*(Deltaphi/DeltaX)  - ((R*T)/F)*sum(i, (z(i)*J(i)*(Kc(i)*C(i) - Cp(i) ) /Dinf(i))) =l= 0 ;
+*Eq_1a..               sum(i,z(i)*C(i))*(Deltaphi/DeltaX)  - ((R*T)/F)*sum(i, (z(i)*J(i)*(Kc(i)*C(i) - Cdx(i) ) /Dinf(i))) =g= 0 ;
+*Eq_2..                  (Deltaphi/DeltaX)*(F/(R*T))*(((z('1')**2)*c('1')) + ((z('2')**2)*c('2'))) =e= (z('1')*Jw/Dp('1'))* ((Kc('1')*c('1')) - Cp('1')) + (z('2')*Jw/Dp('2'))*((Kc('2')*c('2')) - Cp('2')) ;
+Eq_4(i)..               Dp(i) =e= Kd(i)*Dinf(i) ;
+*Eq_4_1(i)..             Kd(i)*phi(i) =e= 1 + (9/8)*lambda(i)*log(lambda(i)) - 1.56034*lambda(i) + 0.528155*sqr(lambda(i)) + 1.91521*(lambda(i)**3) - 2.81903*(lambda(i)**4) + 0.270788*(lambda(i)**5) - 1.10115*(lambda(i)**6) - 0.435933*(lambda(i)**7);
+*Eq_4_1(i)..             Kd(i)  =e=  1 + 2.3*lambda(i) - 1.154*lambda(i)**2 + 0.224*lambda(i)**3;
+Eq_4_1(i)..             Kd(i) =e= 0.984*((1 - lambda(i))/lambda(i))**(5/2) ;
+
+*Eq_5(s)..               Kc(i) =e= N*w*delta*u(s)*alpha;
+*Eq_5(i)..               Kc(i) =e= (2 - phi(i))*(1 + 0.054*lambda(i) - 0.988*lambda(i)**2 + 0.441*lambda(i)**3)  ;
+Eq_5(i)..               Kc(i) =e= ((1 + 1.867*Lambda(i) + 0.741*lambda(i))**(-1))*(1 + 3.867*lambda(i) - 1.907*lambda(i)**2 + 0.834*lambda(i)**3)  ;
+Eq_6..                  sum((i),z(i)*Cp(i)) =g= 0 ;
+Eq_6_1..                sum((i),z(i)*C(i)) + Xd =g= 0;
+Eq_6_2..                sum((i),z(i)*Cw(i)) =g= 0 ;
+*Eq_6_2a..                sum((i),z(i)*Cxo(i)) =g= 0 ;
+*Eq_6_2b..                sum((i),z(i)*Cdx(i)) =g= 0 ;
+Eq_6_3(i)..             phi(i) =g= (1 - lambda(i))**2 ;
+Eq_6_4(i)..             lambda(i)*rp =e=  rs(i);
+*Eq_7(i)..               gammapore(i)*Cxo(i) =g= (gammam(i)*Cb(i)*phi(i)*phiB*exp(- (z(i)*F*DeltaphiD/ R*T)*exp(-DeltaW(i)/kb*T))) ;
+*Eq_7_1(i)..             gammapore(i)*Cdx(i) =g= gammap(i)*Cp(i)*phi(i)*phiB*exp(- (z(i)*F*DeltaphiDp/ R*T)*exp(-DeltaW(i)/kb*T)) ;
+Eq_7(i)..               Cxo(i) - (Cw(i)*phi(i)*phiB*exp(- (z(i)*F*DeltaphiD/ R*T)))=e= 0 ;
+Eq_7_1(i)..             Cdx(i) - Cp(i)*phi(i)*phiB*exp(- (z(i)*F*DeltaphiDp/ R*T))=e= 0 ;
+*Eq_7_2(i)..             DeltaW(i) =e= ((z(i)**2)*(ec**2)*((1/eb) - (1/ep)))*(8*Pi*enot*rs(i))**(-1);
+*Eq_7_3(i)..             gammapore(i) =e= slack2(i) + ( exp(- A*(z(i)**2)*((sqrt(Ion)/ (1+ sqrt(Ion)))- 0.3*Ion))) ;
+*Eq_7_3a(i)..            gammaporep(i) =e=  exp(- A*(z(i)**2)*((sqrt(Ionp)/ (1+ sqrt(Ionp)))- 0.3*Ionp))  ;
+Eq_7_31(i)..            gammam(i) =e= exp(- A*(z(i)**2)*((sqrt(Ionxo)/ (1+ sqrt(Ionxo)))- 0.3*Ionxo));
+Eq_7_32(i)..            gammap(i) =e= exp(- A*(z(i)**2)*((sqrt(Iondx)/ (1+ sqrt(Iondx)))- 0.3*Iondx));
+Eq_7_4..                Ion =e= 0.5*sum((i), (z(i)**2)*Cw(i)) ;
+Eq_7_4a..               Ionp =e= 0.5*sum((i), (z(i)**2)*Cp(i)) ;
+Eq_7_4b..                Ionxo =e= 0.5*sum((i), (z(i)**2)*Cxo(i)) ;
+Eq_7_4c..               Iondx =e= 0.5*sum((i), (z(i)**2)*Cdx(i)) ;
+*Eq_7_5..                ((ec**(3))*sqrt(Navogrado*2*Pi)) =l= A*(log(10)*(4*Pi*enot*er*kb*T)**(3/2)) ;
+Eq_7_6(i)..             J(i) =l= ((-km(i)*Par1(i)*(Cw(i) - Cb(i))) + (Jv*Cw(i)) - (z(i)*Cw(i)*Dinf(i)*(F/(R*T))*Zeta) ) ;
+*Eq_7_6a(i)..            Par1(i) =g= ((Jv/km(i))+ (1 + 0.26*(Jv/km(i))**(1.4))) ;
+*Eq_7_6a(i)..            Par1(i) =e= ((Jv/km(i))+ (1 + 0.26*(Jv/km(i))**(1.4))**(-1.7)) ;
+Eq_7_6a(i)..            Par1(i) =g= ((Jv)+ (1 + 0.26*(Jv))**(1.4))**(-1.7) ;
+*Eq_7_6(i)..             dC(i) =g= -(km(i)*(Cw(i) - Cb(i)) + (Jv*Cw(i)) - (z(i)*Cw(i)*Dinf(i)*(F/(R*T))*Zeta)  ;
+*Eq_7_7..                Deltaphi/DeltaX  =e= (sum((i),((Kc(i)*C(i) - Cp(i))* ((z(i)*Jw)/Dp(i)))/ (F/(R*T))*(z(i)*C(i))))  ;
+*Eq_7_7..                Jv =e= Par2*km(i)  ;
+*Eq_7_8(i)..             Cxo(i) =e=  Cw(i)*phi(i)*exp(-z(i)*F*DeltaphiD/(R*T)) ;
+*Eq_8..                  Jv*(8*mu*effthick) =e= ((rp)**(2))*(Pf -Pp - Pos) ;
+Eq_8..                  Jv =g= (Kw)*(Pf -Pp - Pos) ;
+Eq_8a..                 DeltaX  =e= effthick*Ak  ;
+*Eq_8b..                 DeltaL  =e= efflength*Ak  ;
+Eq_8b..                 L  =e= efflength*Ak  ;
+Eq_8c..                 dS =e= Dout*L  ;
+Eq_8_1..                DeltaP =e= Pf - (Pp + Pos)  ;
+Eq_8_2(i)..             Pos  =e=  Hoffcoef*R*T*(Cw(i) - Cp(i));
+*Eq_9(i)..               phiB =e= exp(-(z(i)**2)*(ec**2)*((1/ep) - (1/eb)))*((8*Pi*enot*rs(i))**(-1))/(kb*T) ;
+Eq_9(i)..               phiB - exp(-DeltaW(i)/(kb*T)) =g= 0 ;
+Eq_9a(i)..              Pe(i)*(Kd(i)*Dinf(i)) =e= Jv*effthick*Kc(i) ;
+Eq_10(i)..              Rreal(i) =g= (-Kc(i)*phi(i))*(1 - (exp(-Pe(i))*(1 - phi(i)*Kc(i))))**(-1) ;
+Eq_10_1(i)..            Rreal(i) -( 1 - (Cp(i)/Cw(i))) =l= 0 ;
+*Eq_10_2(i)..           Recovery(i)*Cw(i) =e= Cp(i) ;
+*Eq_10_2a(i)..           Cdx(i) - phi(i)*Cp(i) =l= 0 ;
+Eq_10_3(i)..            rejlim(i)  =e=  1 - phi(i)*Kc(i) ;
+Eq_12(i)..               dC(i) - Cdx(i) =e=  Cxo(i)   ;
+*Eq_12(i)..               Cdx(i) =g= - dC(i)*DeltaX +  Cxo(i)  ;
+Eq_12_1(i)..             2*C(i) =e=  Cxo(i) - Cdx(i)  ;
+*Eq_13..                 Deltaphi =g=   phix - phidx;
+Eq_13_1..               ep =e=  80 - (2*(80 - estar)*L) + ((80-estar)*(L**2)) ;
+Eq_13_6(i)..               d *(2*L + 2*Dout) =e= 4*dS;
+*Eq_13_2(i)..            km(i)*sqr(2-n)*L*sqrt(hf*L) - (0.753*((n)**2)*(Dinf(i))*(Sc(i)**(-1/6))*sqrt(Pe(i))) =e= 0;
+Eq_13_2(i)..            km(i)*d - slack1(i) =g= Dinf(i)*((3.66**(3)) + (1.61**3)*(rhomix*d*Vel/mu)*Sc(i)*(d/L))**(1/3) ;
+*Eq_13_3(i)..            log10(rs(i) + deltaa) =l= - 1.3363 + 0.395*log10(Mw(i) + deltaa)  ;
+Eq_13_4(i)..            Sc(i)*Dinf(i)*rho =e= mu       ;
+*Eq_13_5(i)..            rs(i)*6*Pi*mu*Dinf(i) =g= kb*T ;
+*Material balances
+*Eq_14(i)..              Pe(i) - (2*hf*Vel/ Dinf(i))=e= 0    ;
+Eq_14(i)..              Pe(i) - (2*L*Vel/ Dinf(i))=e= 0    ;
+*Eq_14_2(i)..            J(i) - Cdx(i)*Jv  =g= 0  ;
+Eq_14_1(i)..            J(i) - Cp(i)*Jv  =e= 0  ;
+*Eq_14_2..               Qf =e= - Jw(i)*dS    ;
+Eq_14_3..               Jv*dS  =l= Qp ;
+
+Eq_14_4..                P_des - E_spec*Qp =g= 0;
+*Eq_14_4..                P_des - E_spec*Jv*dS =g= 0;
+*Eq_14_5..               P_des =e= DeltaP*Qp;
+*Pumping energy requirements
+*Eq_14_6..               E_pu =g=  (k_tr/eta_p)*(Pf - Pp)*Qp ;
+Eq_14_6..               E_pu - (k_tr/eta_p)*(Pf - Pp)*Jv*dS =g= 0;
+
+*Eq_18(s)$(ord(s)=card(s))..                          Qf*C_fd=e=Qp*Cd_out(s)+Qw*Cw;
+
+*Eq_26(s)$(ord (s)<card(s))..                              Cd_out(s)=e=Cd_in(s+1);
+
+*Bounds on variables
+
+*$ontext
+Bound01(i)..                Cw(i) - Cb(i) =g= eps;
+*Bound02_1(i)..            - C(i) + Cdx(i) =l= 0 ;
+*Bound02_2(i)..              Cdx(i) - Cp(i) =g= 0 ;
+*Bound02_3a(i)..            - Cxo(i) + Cw(i) =g= 0  ;
+*C(i) =g= 1e-3;
+*Bound02_2a(i)..              C(i) =l= 1e2;
+*Bound02_5..                 dS   =g= 1e-2;
+*Bound02_3..                 dS   =l= 1000;
+**//10;
+*Bound03_1..                 E_pu =l= 2100001;
+**//0.5;
+*Bound03_2..                 E_pu =g= 0.05;
+*Bound04_1..                 Lmix =g= 0.01;
+Bound04_2a..                 DeltaphiDp =l= Deltaphi ;
+*Bound04_2..                 Xd =e= 2.83 ;
+*Bound04_3a(i)..                gammaporep(i)=g= gammapore(i);
+*Bound04_3..                 Deltaphi =l= 1e9;
+*Bound05_1(i)..                     rp =l= 5e-9;
+*Bound05_2(i)..                 lambda(i) =l= 0.98;
+*Bound05_2a(i)..                 lambda(i) =g= 0.01;
+Bound09_1..                   DeltaphiD =l=  Deltaphi ;
+*Bound09_2..                     r =l= 0.95;
+*$offtext
+
+*Objective function
+*Eq_27.. Obj =e= Mvalue*(slack1+slack2+slack3) + Mvalue*(sum(i,slack2(i)+slack3(i)))+ (k_mb/t_max*dS) +t_d*(k_el*jv*E_pu + P_des);
+Eq_27.. Obj =g=    (k_mb/t_max*dS) + 24*3600*t_d*(E_pu + P_des);
+*Eq_27a.. dummy  =g= Obj ;
+
+Option MINLP = DICOPT;
+Option NLP = COINIPOPT;
+Option MIP = CPLEX;
+slack2.l(i) = 1e-7 ;
+slack2.lo(i) = 1e-9 ;
+slack2.up(i) = 1e-5 ;
+slack3.l = 3.5e-7 ;
+slack3.up = 6 ;
+Qp.lo = 1e-3;
+Qp.l = 1e-2;
+Dout.l = 1e-6;
+Dout.lo = 1e-9;
+*Recovery.l = 1e-3;
+*ep.fx = 41.3 ;
+E_pu.l = 4e4;
+*E_pu.l = 5.001;
+E_pu.lo = 1e-6;
+E_pu.l = 1e-4;
+Vel.l = 0.3;
+Ion.l = 5 ;
+Iondx.l = 5 ;
+Ionxo.l = 5 ;
+Pe.up(i) = 9e9;
+Eq_14.scale(i) =1e2;
+Eq_7_1.scale(i) =1e-6;
+*Eq_7_3.scale(i) =1e6;
+Pe.l(i) = 6e8;
+*Pe.l(i) = 6e3;
+P_des.l = 6e-3;
+*Vel.lo = 1e-6;
+Vel.l = 0.23;
+lambda.up(i) = 0.9851 ;
+lambda.l(i) = 0.90 ;
+lambda.l(i) = 0.955 ;
+lambda.lo(i) = 0.001;
+Obj.up = 1e7;
+Obj.l = 1e4;
+Obj.l = 150e3;
+Obj.lo = 1;
+dummy.l = 4e5 ;
+dummy.lo = 1e3  ;
+*dummy.lo = 1  ;
+effthick.l = 1.33e-6  ;
+effthick.lo = 1e-6  ;
+*effthick.up = 1e-5  ;
+*effthick.up = 1e-3  ;
+efflength.l = 25e-2  ;
+DeltaL.l = 50e-2  ;
+*Option domlim = 12;
+*rs.l(i) = 0.1e-9 ;
+*rs.l(i) = 0.01e-9 ;
+rp.lo = 0.5e-9 ;
+rp.l = 0.5e-9 ;
+*rp.up = 1e-7 ;
+Xd.l = 2.3 ;
+Xd.fx = 2.83 ;
+dC.l(i)   = 1e-3;
+dC.l(i)   = 1e-7;
+*Cavg.l(i) = 1e1;
+dS.l   = 16.9e-4;
+dS.l   = 1e-3;
+d.l = 1.4e-6;
+d.lo = 1e-6 ;
+
+*m.l = 0.5;
+*N.l = 100;
+Qf.l = 100;
+*DeltaP.l = 3e5;
+*DeltaP.l = 1e3;
+*DeltaP.l = 5e5;
+DeltaX.lo = 1e-9;
+DeltaX.l = 25e-2;
+DeltaX.l = 20e-2;
+DeltaX.l = 60e-9;
+j.l(i) = 1e-4;
+j.l(i) = 1e-9;
+jv.l = 1e-3;
+*jv.up = 760;
+*rp.l = 1.27e-9;
+*rp.lo = 1e-9;
+*rp.lo = 5e-9;
+*ratioeff.lo=  4.4e3 ;
+*ratioeff.l=  1e4 ;
+*ratioeff.up = 7.8e4 ;
+Km.l(i) = 1e-6;
+Km.l(i) = 1e-7;
+Kd.l(i) = 1e-2;
+Kd.l(i) = 1e-7;
+*Kc.l(i) = 1e1;
+Kc.lo(i) = 1e-7;
+*C.l(i) = 1e-6;
+C.l(i) = 10;
+C.l(i) = 1e-3;
+*C.up(i) = 1e2;
+Cw.lo(i) = Cb(i);
+*Cw.l(i) = 1e1;
+*Cw.l(i) = Cb(i)*0.000125 ;
+Cxo.l(i) = Cw.l(i)*0.525 ;
+Cdx.l(i) = Cb(i)*0.01 ;
+Cp.l(i) = Cdx.l(i);
+Cp.l(i) = Cb(i)*0.02;
+Sc.l(i) = 1e-3;
+Sc.lo(i) = 1e-5;
+Rreal.l(i) = 0.8 ;
+rejlim.l(i) = 0.01;
+d.l = 0.1;
+L.l = 1e-3;
+L.lo = 1e-9;
+Pos.l = 1e4;
+Pos.l = 1e2;
+Pos.l = 1e1;
+
+Pos.l =1e6;
+Deltaphi.l = 10;
+Deltaphi.l = 0.000010;
+*DeltaphiDp.l = 1;
+*DeltaphiD.l = 1;
+Dp.l(i) = 1e-2;
+Dp.l(i) = 2.5e-9;
+Dp.l(i) = 0.2*Dinf(i);
+Dp.lo(i) = 0.01*Dinf(i);
+phidx.l = 5;
+phidx.lo =0.01;
+phix.l = 1;
+phiB.l = 0.5;
+phiB.lo = 0.001;
+phi.l(i) = 0.01;
+phi.l(i) = 0.855;
+*phi.l(i) = 1;
+Pf.l = 13.5*Pp;
+Pf.l = 5.05*Pp;
+Pf.lo = 1;
+Pf.up = 30e5;
+*DeltaW.l(i) = 7e+5;
+*DeltaW.l(i) = 8e+4;
+*DeltaW.l(i) = 1;
+gammaporep.l(i)= 0.5;
+gammapore.l(i)= 5e-2;
+gammap.l(i) = 0.5;
+gammam.l(i) =  1e-2;
+gammapore.up(i)= 1;
+gammap.up(i) = 1;
+gammaporep.up(i)= 1;
+gammam.up(i) =  1;
+*E_spec.l = 1e-3;
+*Lambda.l(i) = 0.5 ;
+*Lambda.up(i) = 1.0 ;
+*Lambda.lo(i) = 0.0 ;
+*A.l = 0.5;
+*A.l = 0.5e-6;
+*Jv.l = 1e-3 ;
+
+
+Model Nanofiltration/all/;
+*Solve Nanofiltration using RMINLP minimizing Obj;
+*Solve Nanofiltration using RNLP minimizing Obj;
+*Solve Nanofiltration using MINLP minimizing Obj;
+*Solve Nanofiltration using NLP minimizing Obj;
+*Solve Nanofiltration using NLP minimizing dummy;
+*execerror = 0;
+Option MINLP = DICOPT;
+Option NLP = CONOPT;
+Option MIP = CPLEX;
+option optcr = 1e-2;
+option optca = 1e-3;
+
+Solve Nanofiltration using NLP minimizing Obj;
+*Solve Nanofiltration using NLP minimizing dummy;
